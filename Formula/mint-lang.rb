@@ -4,6 +4,13 @@ class MintLang < Formula
   url "https://github.com/mint-lang/mint/archive/0.10.0.tar.gz"
   sha256 "dfb030df933942291fa24d3c3456da5b4f37e9131606f9c17f00f0fe1e0b2a38"
   license "BSD-3-Clause"
+
+  bottle do
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.10.0"
+    cellar :any
+    sha256 "19ce427480fc8fa85b0a102947644e8830be8640c8af8c5fe06f13edc7fb31db" => :catalina
+    sha256 "f824c89fc61bcbffba153a46a0cfa3140e7edba32fe09746c575c282c6454d2e" => :x86_64_linux
+  end
   head do
     url "https://github.com/mint-lang/mint.git"
   end
