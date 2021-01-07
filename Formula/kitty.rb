@@ -5,6 +5,12 @@ class Kitty < Formula
   sha256 "28fc5de9b8934174801aa7d95c5a6f4c878a7e93eea15cdf06d9c982e1cd2fec"
   license "GPL-3.0-only"
 
+  bottle do
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/kitty-0.19.3"
+    cellar :any_skip_relocation
+    sha256 "ed55f377cd2f74016a5a38d3f456e4798b4dc91110806cbf23bf8f6959b4bfe0" => :x86_64_linux
+  end
+
   depends_on "ncurses" => :build
   depends_on "pkg-config" => :build
   depends_on "sphinx-doc" => :build
