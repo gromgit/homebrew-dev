@@ -22,17 +22,16 @@ class Kitty < Formula
   depends_on "libpng"
   depends_on "libxcb"
   depends_on "libxcursor"
+  depends_on "libxi"
   depends_on "libxinerama"
   depends_on "libxkbcommon"
   depends_on "libxrandr"
+  depends_on :linux
+  depends_on "mesa"
+  depends_on "python-dbus"
   depends_on "python@3.9"
   depends_on "wayland-protocols"
   depends_on "zlib"
-  on_linux do
-    depends_on "libxi"
-    depends_on "mesa"
-    depends_on "python-dbus"
-  end
 
   def install
     system "make"
