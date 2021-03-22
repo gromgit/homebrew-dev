@@ -1,8 +1,8 @@
 class Abs < Formula
   desc "Shell scripting with a more modern syntax"
   homepage "https://www.abs-lang.org"
-  url "https://github.com/abs-lang/abs/archive/2.4.0.tar.gz"
-  sha256 "ea6fcb1cddfea4da960c01ebdba1e2b2cdb22975c86d956a68f64db17d48b0a8"
+  url "https://github.com/abs-lang/abs/archive/2.4.1.tar.gz"
+  sha256 "f378e1ae9fda330bc3819587155f97fe7bed38fb39ba8847c94f6fa5b6f51745"
   license "MIT"
   livecheck do
     url :stable
