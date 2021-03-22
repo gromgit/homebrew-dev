@@ -7,9 +7,8 @@ class Umka < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/umka-0.4.1"
-    cellar :any
-    sha256 "607e11b5b6a249496d730a64042077a308a79686c1966200590a07df11512dc9" => :catalina
-    sha256 "e1035a61f94a40c3ce48d0179169f375be53fcb90258994f96b9c82c87c89571" => :x86_64_linux
+    sha256 cellar: :any, catalina:     "607e11b5b6a249496d730a64042077a308a79686c1966200590a07df11512dc9"
+    sha256 cellar: :any, x86_64_linux: "e1035a61f94a40c3ce48d0179169f375be53fcb90258994f96b9c82c87c89571"
   end
   head do
     url "https://github.com/gromgit/umka-lang.git"

@@ -7,8 +7,7 @@ class Kitty < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/kitty-0.19.3"
-    cellar :any_skip_relocation
-    sha256 "ed55f377cd2f74016a5a38d3f456e4798b4dc91110806cbf23bf8f6959b4bfe0" => :x86_64_linux
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "ed55f377cd2f74016a5a38d3f456e4798b4dc91110806cbf23bf8f6959b4bfe0"
   end
 
   depends_on "ncurses" => :build
