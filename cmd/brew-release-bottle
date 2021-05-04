@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+#:   * release-bottle [-t|--pre-test] [-w|--wipe-bottles] user/repo/formula ...
+#:     Builds and releases bottle for <user/repo/formula>
+#:       -t|--pre-test     : Install and test formula beforehand
+#:       -w|--wipe-bottles : Wipe existing bottles stanza
+trap cleanup EXIT
+
+cleanup() {
+  [[ -n $tmpdir ]] || return
+  echo "----- Nuking $tmpdir -----"
+  rm -fr "$tmpdir"
+  tmpdir=""
+}
+
+fatal() {
+  echo "FATAL ERROR: $*" >&2
+  exit 1
+}
+
+jquery() {
+  jq -r ".[] | $*" ./.base_json
+}
+
+shopt -s lastpipe
+command -v jq &>/dev/null || fatal "jq not available"
+
+while true; do
+  case "$1" in
+    -t|--pre-test) pre_test=1;;
+    -w|--wipe-bottles) wipe_bottles=1;;
+    *) break;;
+  esac
+  shift
+done
+
+set -e
+
+for f in "$@"; do
+  if [[ $f =~ ([^/]+)/([^/]+)/([^/]+) ]]; then
+    tap=${BASH_REMATCH[1]}/${BASH_REMATCH[2]}
+    ghrepo=${BASH_REMATCH[1]}/homebrew-${BASH_REMATCH[2]}
+    repodir=$(brew --repo "$tap")
+    fname=${BASH_REMATCH[3]}
+    # First make sure the tap's up-to-date
+    git -C "$repodir" pull
+    tmpdir=$(mktemp -d)
+    cd "$tmpdir"
+    brew rm "$f" || true
+    if [[ -n "$pre_test" ]]; then
+      # Let's make sure it'll pass first
+      echo "----- Testing $f -----"
+      brew install -s "$f"
+      brew test "$f"
+      brew rm "$f"
+    fi
+    echo "----- Bottling $f in $tmpdir -----"
+    brew install --build-bottle "$f"
+    brew info --json "$f" > ./.base_json
+    fver=$(jquery .versions.stable)
+    if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
+      # New bottle section
+      root_url=https://github.com/${ghrepo}/releases/download/${fname}-${fver}
+      keep_old=()
+    else
+      root_url=$(jquery .bottle.stable.root_url)
+      keep_old=(--keep-old)
+    fi
+    [[ $root_url != "null" ]] || fatal "unable to determine root URL"
+    brew bottle --verbose --json --root-url="${root_url}" "$f"
+    git -C "$repodir" add Formula/"$fname".rb
+    brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
+    echo "----- Uploading for $f -----"
+    jq -r '.[].bottle.tags|.[]|"\(.local_filename) \(.filename)"' ./*.json | while read -r lf rf; do
+      mv -v "$lf" "$rf"
+      tag=${root_url##*/}
+      if gh release view "$tag" -R "$ghrepo" >&/dev/null; then
+        # Release already created
+        gh release upload "$tag" "$rf" -R "$ghrepo" --clobber
+      else
+        # We need to create it with this new file
+        gh release create "$tag" "$rf" -R "$ghrepo"
+      fi
+    done
+    git -C "$repodir" push 
+    echo "----- Reinstalling & testing $f -----"
+    brew rm "$f"
+    brew install "$f"
+    brew test "$f"
+    echo "----- Cleaning up $f -----"
+    brew rm "$f"
+    cd - &> /dev/null
+    cleanup
+  else
+    echo "WARNING: $f not in <user>/<tap>/<formula> format, skipping."
+  fi
+done
