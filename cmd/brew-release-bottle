@@ -22,7 +22,9 @@ jquery() {
 }
 
 shopt -s lastpipe
-command -v jq &>/dev/null || fatal "jq not available"
+for cmd in jq gh; do
+  command -v "$cmd" &>/dev/null || fatal "$cmd not available"
+done
 
 while true; do
   case "$1" in
