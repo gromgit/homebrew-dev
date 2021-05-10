@@ -30,6 +30,7 @@ while true; do
   case "$1" in
     -t|--pre-test) pre_test=1;;
     -w|--wipe-bottles) wipe_bottles=1;;
+    -nr|--no-rebuild) no_rebuild=1;;
     *) break;;
   esac
   shift
@@ -65,10 +66,14 @@ for f in "$@"; do
       keep_old=()
     else
       root_url=$(jquery .bottle.stable.root_url)
-      keep_old=(--keep-old)
+      if [[ -n $no_rebuild ]]; then
+        keep_old=(--no-rebuild)
+      else
+        keep_old=(--keep-old)
+      fi
     fi
     [[ $root_url != "null" ]] || fatal "unable to determine root URL"
-    brew bottle --verbose --json --root-url="${root_url}" "$f"
+    brew bottle --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
     git -C "$repodir" add Formula/"$fname".rb
     brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
     echo "----- Uploading for $f -----"
