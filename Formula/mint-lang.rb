@@ -1,14 +1,13 @@
 class MintLang < Formula
   desc "Programming language for single-page web applications"
   homepage "https://www.mint-lang.com/"
-  url "https://github.com/mint-lang/mint/archive/0.11.0.tar.gz"
-  sha256 "ced84713cb7b7c7d21a58a1b264b896a4319ce0b0b68d12cac9a8de4490bd485"
+  url "https://github.com/mint-lang/mint/archive/0.12.0.tar.gz"
+  sha256 "3ca2ab0435ce3fa537d6ba52c5ad8491d1fb4bc376b81fdc6f4fc9e741a71f4c"
   license "BSD-3-Clause"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.11.0"
-    sha256 cellar: :any, catalina:     "44db3aa7ed8520391fec431fd314e57ef4c9c81a2bc40cd419a5c8e734139c21"
-    sha256 cellar: :any, x64_64_linux: "dfd62cb445d1d57b21c9c22dfce49f78ed3dad23dec308742b839996b4bdf754"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.12.0"
+    sha256 cellar: :any, big_sur: "af3717ba9660ea1c8dff4c98b57705e9d702ab906b925463d77400d26f7220ab"
   end
   head do
     url "https://github.com/mint-lang/mint.git"
@@ -24,7 +23,7 @@ class MintLang < Formula
   conflicts_with "mint", because: "both install `mint` binaries"
 
   def install
-    system "shards", "install"
+    system "shards", "install", "--ignore-crystal-version"
     system "crystal", "build", "src/mint.cr", "-o", "mint", "-p", "--release", "--no-debug"
     bin.install "mint"
   end
