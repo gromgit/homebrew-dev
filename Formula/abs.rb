@@ -1,8 +1,8 @@
 class Abs < Formula
   desc "Shell scripting with a more modern syntax"
   homepage "https://www.abs-lang.org"
-  url "https://github.com/abs-lang/abs/archive/2.4.1.tar.gz"
-  sha256 "f378e1ae9fda330bc3819587155f97fe7bed38fb39ba8847c94f6fa5b6f51745"
+  url "https://github.com/abs-lang/abs/archive/2.4.2.tar.gz"
+  sha256 "bf950de75a14041cfb873a925ab4187ce0bae46a91d0982fa8563e40aa2e233d"
   license "MIT"
   livecheck do
     url :stable
@@ -10,9 +10,8 @@ class Abs < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/abs-2.4.1"
-    rebuild 1
-    sha256 cellar: :any_skip_relocation, big_sur: "5ffde09071ca3dda64f5f7c2dcd434582f0fcda5c9b58dd2aaa76cc94cbdad06"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/abs-2.4.2"
+    sha256 cellar: :any_skip_relocation, big_sur: "c9ba37c5ec49baf2bdd524836fbddec92e6cf3c931e41ac8bfcaae9d4daf1a78"
   end
 
   head do
