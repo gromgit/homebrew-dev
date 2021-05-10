@@ -11,9 +11,8 @@ class Abs < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/abs-2.4.1"
-    sha256 cellar: :any_skip_relocation, catalina:     "add84050e632b1696000dc5304dbeef9a2e2e5b48d5a7d5232762194fb563575"
-    sha256 cellar: :any_skip_relocation, mojave:       "4dc9fa5cda5f7c6d6a3f1fd21ba79c507898919b3f778297490bd846c5d1693f"
-    sha256 cellar: :any_skip_relocation, x86_64_linux: "51a72624757858df2c5f652794a9e1b51ca8d635537e5fe1853f52289d87776a"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, big_sur: "5ffde09071ca3dda64f5f7c2dcd434582f0fcda5c9b58dd2aaa76cc94cbdad06"
   end
 
   head do
