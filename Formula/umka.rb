@@ -1,14 +1,13 @@
 class Umka < Formula
   desc "Statically-typed embeddable scripting language"
   homepage "https://github.com/vtereshkov/umka-lang"
-  url "https://github.com/vtereshkov/umka-lang/archive/v0.4.1.tar.gz"
-  sha256 "bd36c7f1b22abe86a04f4770f754ad178284cdbfcf79907dbbcace50ddaaa773"
+  url "https://github.com/vtereshkov/umka-lang/archive/v0.5.1.tar.gz"
+  sha256 "27795e8f51338907677cba6304893080ec0aaeb511401573376a73aef81892c5"
   license "BSD-2-Clause"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/umka-0.4.1"
-    sha256 cellar: :any, catalina:     "607e11b5b6a249496d730a64042077a308a79686c1966200590a07df11512dc9"
-    sha256 cellar: :any, x86_64_linux: "e1035a61f94a40c3ce48d0179169f375be53fcb90258994f96b9c82c87c89571"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/umka-0.5.1"
+    sha256 cellar: :any, big_sur: "879cff40ab61b057faa81b46d9e0e1d4b9c44d0ea9bff79f40e7dbbee5893c5e"
   end
   head do
     url "https://github.com/gromgit/umka-lang.git"
@@ -16,8 +15,8 @@ class Umka < Formula
 
   def install
     system "make"
-    bin.install "umka"
-    lib.install Dir["libumka.*"]
+    bin.install "build/umka"
+    lib.install Dir["build/libumka.*"]
     doc.install "examples"
   end
 
