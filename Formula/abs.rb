@@ -1,8 +1,8 @@
 class Abs < Formula
   desc "Shell scripting with a more modern syntax"
   homepage "https://www.abs-lang.org"
-  url "https://github.com/abs-lang/abs/archive/2.4.2.tar.gz"
-  sha256 "bf950de75a14041cfb873a925ab4187ce0bae46a91d0982fa8563e40aa2e233d"
+  url "https://github.com/abs-lang/abs/archive/2.5.0.tar.gz"
+  sha256 "a58d0aec2b4e702c226b1e095269923aef0db56622af95af308035b5047b3945"
   license "MIT"
   livecheck do
     url :stable
@@ -10,11 +10,8 @@ class Abs < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/abs-2.4.2"
-    sha256 cellar: :any_skip_relocation, big_sur:      "f1906e183d869e285800a6b94bf0de3e2b8159ceb94caaf069ce3b024709e6ba"
-    sha256 cellar: :any_skip_relocation, catalina:     "2429e8a1b3afd594263a2cca87f7e644969d34668b64dc4a5216d4994e09f4cc"
-    sha256 cellar: :any_skip_relocation, mojave:       "359d840382bd91da6bb679ac92d0287579eb95eed52f1f30d68cb4577e285da4"
-    sha256 cellar: :any_skip_relocation, x86_64_linux: "b3683c235c178329a5ae523aff23bc93ea084af2953648015161c5db3b13f4a9"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/abs-2.5.0"
+    sha256 cellar: :any_skip_relocation, big_sur: "d516cc2f5bb5bff047442943961a1d601b8cf446b6a677cc562793e982ecba05"
   end
 
   head do
