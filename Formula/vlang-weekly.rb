@@ -12,6 +12,7 @@ class VlangWeekly < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2021.20"
+    sha256 cellar: :any_skip_relocation, mojave:       "61e0dcc0036642079d4019bde0972f7848d4b9e20b75a8fbc32212cd64456bce"
     sha256 cellar: :any_skip_relocation, x86_64_linux: "b4d653ceaf86c03d0f34e0566f3b968a982c9598d6398dc6ff88ff4f35978766"
   end
 
