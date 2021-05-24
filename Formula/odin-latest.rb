@@ -2,6 +2,7 @@ class OdinLatest < Formula
   desc "Programming language with focus on simplicity, performance and modern systems"
   homepage "https://odin-lang.org/"
   url "https://github.com/odin-lang/Odin/archive/dev-2021-05.tar.gz"
+  version "dev-2021-05"
   sha256 "0137e16a64d73859c5dc67615aa32c62a59b2671a12252b4274ff7aa528874ae"
   license "BSD-2-Clause"
   head "https://github.com/odin-lang/Odin.git"
@@ -12,8 +13,8 @@ class OdinLatest < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-2021-05"
-    sha256 cellar: :any, big_sur: "c3316c60b3cc67dbdd3a727e243b87c54ed06050652d2e17a39390d96f203aa9"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2021-05"
+    sha256 cellar: :any, big_sur: "0b4d3ea46922ccacf929199e15082526f7462a6009b53d38bd7e85e12f8a050d"
   end
 
   # Check if this can be switched to `llvm` at next release
