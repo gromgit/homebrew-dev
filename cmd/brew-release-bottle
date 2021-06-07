@@ -31,6 +31,7 @@ while true; do
     -t|--pre-test) pre_test=1;;
     -w|--wipe-bottles) wipe_bottles=1;;
     -nr|--no-rebuild) no_rebuild=1;;
+    -V|--bump-version) new_version="$2"; shift;;
     *) break;;
   esac
   shift
@@ -48,14 +49,25 @@ for f in "$@"; do
     git -C "$repodir" pull
     tmpdir=$(mktemp -d)
     cd "$tmpdir"
-    brew rm "$f" || true
+
+    # Bump the version if needed
+    if [[ -n $new_version ]]; then
+      brew bump-formula-pr --write --version "$new_version" "$f"
+    fi
+
+    # Clean out any existing installation
+    brew rm --ignore-dependencies "$f" || true
+
+    # Pre-test if needed
     if [[ -n "$pre_test" ]]; then
       # Let's make sure it'll pass first
       echo "----- Testing $f -----"
       brew install -s "$f"
       brew test "$f"
-      brew rm "$f"
+      brew rm --ignore-dependencies "$f"
     fi
+
+    # Bottle & merge with the formula
     echo "----- Bottling $f in $tmpdir -----"
     brew install --build-bottle "$f"
     brew info --json "$f" > ./.base_json
@@ -76,6 +88,8 @@ for f in "$@"; do
     brew bottle --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
     git -C "$repodir" add Formula/"$fname".rb
     brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
+
+    # Upload the new stuff
     echo "----- Uploading for $f -----"
     jq -r '.[].bottle.tags|.[]|"\(.local_filename) \(.filename)"' ./*.json | while read -r lf rf; do
       mv -v "$lf" "$rf"
@@ -89,12 +103,19 @@ for f in "$@"; do
       fi
     done
     git -C "$repodir" push 
+
+    # Reinstall and test
     echo "----- Reinstalling & testing $f -----"
-    brew rm "$f"
+    brew rm --ignore-dependencies "$f"
     brew install "$f"
     brew test "$f"
-    echo "----- Cleaning up $f -----"
-    brew rm "$f"
+
+    # Clean up if necessary
+    if [[ -z "$(brew uses --installed "$f")" ]]; then
+      echo "----- Cleaning up $f -----"
+      brew rm "$f"
+    fi
+
     cd - &> /dev/null
     cleanup
   else
