@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
-#:   * release-bottle [-t|--pre-test] [-w|--wipe-bottles] user/repo/formula ...
+#:   * release-bottle [options] user/repo/formula ...
 #:     Builds and releases bottle for <user/repo/formula>
-#:       -t|--pre-test     : Install and test formula beforehand
-#:       -w|--wipe-bottles : Wipe existing bottles stanza
+#:       -t|--pre-test           : Install and test formula beforehand
+#:       -w|--wipe-bottles       : Wipe existing bottles stanza
+#:       -V|--bump-version <ver> : Bump formula version to <ver>
+
+# string formatters
+if [[ -t 1 ]]; then
+  Tty_escape() { printf "\033[%sm" "$1"; }
+else
+  Tty_escape() { :; }
+fi
+Tty_mkbold() { Tty_escape "1;${1:-39}"; }
+Tty_cyan=$(Tty_mkbold 36)
+Tty_reset=$(Tty_escape 0)
+
 trap cleanup EXIT
 
 cleanup() {
@@ -19,6 +31,11 @@ fatal() {
 
 jquery() {
   jq -r ".[] | $*" ./.base_json
+}
+
+cmd() {
+  echo "${Tty_cyan}>>> $*${Tty_reset}"
+  command "$@"
 }
 
 shopt -s lastpipe
@@ -52,25 +69,25 @@ for f in "$@"; do
 
     # Bump the version if needed
     if [[ -n $new_version ]]; then
-      brew bump-formula-pr --write --version "$new_version" "$f"
+      cmd brew bump-formula-pr --write --version "$new_version" "$f"
     fi
 
     # Clean out any existing installation
-    brew rm --ignore-dependencies "$f" || true
+    cmd brew rm --ignore-dependencies "$f" || true
 
     # Pre-test if needed
     if [[ -n "$pre_test" ]]; then
       # Let's make sure it'll pass first
       echo "----- Testing $f -----"
-      brew install -s "$f"
-      brew test "$f"
-      brew rm --ignore-dependencies "$f"
+      cmd brew install -s "$f"
+      cmd brew test "$f"
+      cmd brew rm --ignore-dependencies "$f"
     fi
 
     # Bottle & merge with the formula
     echo "----- Bottling $f in $tmpdir -----"
-    brew install --build-bottle "$f"
-    brew info --json "$f" > ./.base_json
+    cmd brew install --build-bottle "$f"
+    cmd brew info --json "$f" > ./.base_json
     fver=$(jquery .versions.stable)
     if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
       # New bottle section
@@ -85,35 +102,35 @@ for f in "$@"; do
       fi
     fi
     [[ $root_url != "null" ]] || fatal "unable to determine root URL"
-    brew bottle --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
+    cmd brew bottle --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
     git -C "$repodir" add Formula/"$fname".rb
-    brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
+    cmd brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
 
     # Upload the new stuff
     echo "----- Uploading for $f -----"
     jq -r '.[].bottle.tags|.[]|"\(.local_filename) \(.filename)"' ./*.json | while read -r lf rf; do
       mv -v "$lf" "$rf"
       tag=${root_url##*/}
-      if gh release view "$tag" -R "$ghrepo" >&/dev/null; then
+      if cmd gh release view "$tag" -R "$ghrepo" >&/dev/null; then
         # Release already created
-        gh release upload "$tag" "$rf" -R "$ghrepo" --clobber
+        cmd gh release upload "$tag" "$rf" -R "$ghrepo" --clobber
       else
         # We need to create it with this new file
-        gh release create "$tag" "$rf" -R "$ghrepo"
+        cmd gh release create "$tag" "$rf" -R "$ghrepo"
       fi
     done
     git -C "$repodir" push 
 
     # Reinstall and test
     echo "----- Reinstalling & testing $f -----"
-    brew rm --ignore-dependencies "$f"
-    brew install "$f"
-    brew test "$f"
+    cmd brew rm --ignore-dependencies "$f"
+    cmd brew install "$f"
+    cmd brew test "$f"
 
     # Clean up if necessary
     if [[ -z "$(brew uses --installed "$f")" ]]; then
       echo "----- Cleaning up $f -----"
-      brew rm "$f"
+      cmd brew rm "$f"
     fi
 
     cd - &> /dev/null
