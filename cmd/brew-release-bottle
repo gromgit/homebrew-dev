@@ -3,6 +3,8 @@
 #:     Builds and releases bottle for <user/repo/formula>
 #:       -t|--pre-test           : Install and test formula beforehand
 #:       -w|--wipe-bottles       : Wipe existing bottles stanza
+#:       -nr|--no-rebuild        : Don't add `build` entry to `bottles` stanza
+#:       -nc|--no-cleanup        : Don't remove `formula` after bottling
 #:       -V|--bump-version <ver> : Bump formula version to <ver>
 
 # string formatters
@@ -38,6 +40,14 @@ cmd() {
   command "$@"
 }
 
+# git_in <repo> <cmd> ...
+git_in() {
+  local repo=$1; shift
+  pushd "$repo" >/dev/null || fatal "Can't cd to '$repo'"
+  cmd git "$@"
+  popd >/dev/null
+}
+
 shopt -s lastpipe
 for cmd in jq gh; do
   command -v "$cmd" &>/dev/null || fatal "$cmd not available"
@@ -48,6 +58,7 @@ while true; do
     -t|--pre-test) pre_test=1;;
     -w|--wipe-bottles) wipe_bottles=1;;
     -nr|--no-rebuild) no_rebuild=1;;
+    -nc|--no-cleanup) no_cleanup=1;;
     -V|--bump-version) new_version="$2"; shift;;
     *) break;;
   esac
@@ -57,13 +68,19 @@ done
 set -e
 
 for f in "$@"; do
+
+  # XYZ = homebrew/core/XYZ
+  if [[ $f != */* ]]; then
+    f=homebrew/core/$f
+  fi
+
   if [[ $f =~ ([^/]+)/([^/]+)/([^/]+) ]]; then
     tap=${BASH_REMATCH[1]}/${BASH_REMATCH[2]}
     ghrepo=${BASH_REMATCH[1]}/homebrew-${BASH_REMATCH[2]}
     repodir=$(brew --repo "$tap")
     fname=${BASH_REMATCH[3]}
     # First make sure the tap's up-to-date
-    git -C "$repodir" pull
+    git_in "$repodir" pull
     tmpdir=$(mktemp -d)
     cd "$tmpdir"
 
@@ -103,7 +120,7 @@ for f in "$@"; do
     fi
     [[ $root_url != "null" ]] || fatal "unable to determine root URL"
     cmd brew bottle --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
-    git -C "$repodir" add Formula/"$fname".rb
+    git_in "$repodir" add Formula/"$fname".rb
     cmd brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
 
     # Upload the new stuff
@@ -119,7 +136,7 @@ for f in "$@"; do
         cmd gh release create "$tag" "$rf" -R "$ghrepo"
       fi
     done
-    git -C "$repodir" push 
+    git_in "$repodir" push 
 
     # Reinstall and test
     echo "----- Reinstalling & testing $f -----"
@@ -128,7 +145,7 @@ for f in "$@"; do
     cmd brew test "$f"
 
     # Clean up if necessary
-    if [[ -z "$(brew uses --installed "$f")" ]]; then
+    if [[ -z "$(brew uses --installed "$f")" || -z "$no_cleanup" ]]; then
       echo "----- Cleaning up $f -----"
       cmd brew rm "$f"
     fi
@@ -138,4 +155,5 @@ for f in "$@"; do
   else
     echo "WARNING: $f not in <user>/<tap>/<formula> format, skipping."
   fi
+
 done
