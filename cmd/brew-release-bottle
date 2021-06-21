@@ -36,7 +36,7 @@ jquery() {
 }
 
 cmd() {
-  echo "${Tty_cyan}>>> $*${Tty_reset}"
+  echo "${Tty_cyan}>>> $*${Tty_reset}" >&2
   command "$@"
 }
 
