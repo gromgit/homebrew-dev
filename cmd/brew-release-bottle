@@ -14,10 +14,12 @@ else
   Tty_escape() { :; }
 fi
 Tty_mkbold() { Tty_escape "1;${1:-39}"; }
+Tty_red=$(Tty_mkbold 31)
 Tty_cyan=$(Tty_mkbold 36)
 Tty_reset=$(Tty_escape 0)
 
 trap cleanup EXIT
+trap err_rename ERR
 
 cleanup() {
   [[ -n $tmpdir ]] || return
@@ -26,9 +28,19 @@ cleanup() {
   tmpdir=""
 }
 
+err_rename() {
+  [[ -n $tmpdir ]] || return
+  mv "$tmpdir" "$tmpdir".b0rken
+  error "Release failed, temp dir moved to ${tmpdir}.b0rken"
+}
+
 fatal() {
-  echo "FATAL ERROR: $*" >&2
+  echo "${Tty_red}FATAL ERROR:${Tty_reset} $*" >&2
   exit 1
+}
+
+error() {
+  echo "${Tty_red}${msg_prefix}ERROR:${Tty_reset} $*" >&2
 }
 
 jquery() {
