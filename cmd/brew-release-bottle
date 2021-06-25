@@ -1,22 +1,13 @@
 #!/usr/bin/env bash
-#:   * release-bottle [options] user/repo/formula ...
-#:     Builds and releases bottle for <user/repo/formula>
-#:       -t|--pre-test           : Install and test formula beforehand
-#:       -w|--wipe-bottles       : Wipe existing bottles stanza
-#:       -nr|--no-rebuild        : Don't add `build` entry to `bottles` stanza
-#:       -nc|--no-cleanup        : Don't remove `formula` after bottling
-#:       -V|--bump-version <ver> : Bump formula version to <ver>
+#:`brew release-bottle` [options] *user/repo/formula* ...
+#:    Builds and releases bottle for *user/repo/formula*
+#:    `-t` |`--pre-test`         : Install and test `formula` before bottling
+#:    `-w` |`--wipe-bottles`     : Wipe existing `bottles` stanza
+#:    `-nr`|`--no-rebuild`       : Don't add `build` entry to `bottles` stanza
+#:    `-nc`|`--no-cleanup`       : Don't remove `formula` after bottling
+#:    `-V` |`--bump-version` *ver* : Bump `formula` version to *ver*
 
-# string formatters
-if [[ -t 1 ]]; then
-  Tty_escape() { printf "\033[%sm" "$1"; }
-else
-  Tty_escape() { :; }
-fi
-Tty_mkbold() { Tty_escape "1;${1:-39}"; }
-Tty_red=$(Tty_mkbold 31)
-Tty_cyan=$(Tty_mkbold 36)
-Tty_reset=$(Tty_escape 0)
+. "$(dirname "$0")/../lib/funcs.sh"
 
 trap cleanup EXIT
 trap err_rename ERR
@@ -32,15 +23,6 @@ err_rename() {
   [[ -n $tmpdir ]] || return
   mv "$tmpdir" "$tmpdir".b0rken
   error "Release failed, temp dir moved to ${tmpdir}.b0rken"
-}
-
-fatal() {
-  echo "${Tty_red}FATAL ERROR:${Tty_reset} $*" >&2
-  exit 1
-}
-
-error() {
-  echo "${Tty_red}${msg_prefix}ERROR:${Tty_reset} $*" >&2
 }
 
 jquery() {
