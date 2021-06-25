@@ -11,8 +11,8 @@ shopt -s lastpipe extglob
 extract() {
   set -e
   local tapdir hash=$1 formula=$2 ver=$3 tap=$4 ignore_lines=""
-  brew tap "$tap"
   tapdir="$(brew --repo "$tap")"
+  [[ -d ${tapdir}/Formula ]] || brew tap-new "$tap"
   git show "${hash}:Formula/${formula}.rb" | while read -r; do
     case "$REPLY" in
       class\ *) [[ $REPLY =~ class\ (.*)\ \<\ Formula ]] && echo "class ${BASH_REMATCH[1]}AT${ver//.} < Formula";;
@@ -20,7 +20,7 @@ extract() {
       *(\ )end*(\ )) if [[ -n $ignore_lines ]]; then ignore_lines=""; else echo "$REPLY"; fi;;
       *) if [[ -z "$ignore_lines" ]]; then echo "$REPLY"; fi;;
     esac
-  done > "${tapdir}/Formula/${2}@${3}.rb"
+  done > "${tapdir}/Formula/${2}@${3}.rb" && info "Formula '$formula' version $ver written to: ${tapdir}/Formula/${2}@${3}.rb"
 }
 
 formula=$1
