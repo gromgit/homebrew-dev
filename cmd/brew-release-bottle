@@ -29,19 +29,6 @@ jquery() {
   jq -r ".[] | $*" ./.base_json
 }
 
-cmd() {
-  echo "${Tty_cyan}>>> $*${Tty_reset}" >&2
-  command "$@"
-}
-
-# git_in <repo> <cmd> ...
-git_in() {
-  local repo=$1; shift
-  pushd "$repo" >/dev/null || fatal "Can't cd to '$repo'"
-  cmd git "$@"
-  popd >/dev/null
-}
-
 shopt -s lastpipe
 for cmd in jq gh; do
   command -v "$cmd" &>/dev/null || fatal "$cmd not available"
