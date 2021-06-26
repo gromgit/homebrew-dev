@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-fatal() {
-  echo "FATAL ERROR: $*"
-  exit 1
-}
+#:`brew nuke-branch` *branch* ...
+#:    Remove local and remote copies of *branch*
+#:
+#:    Environment variables:
+#:      HOMEBREW_GITHUB_UPSTREAM : name of Git remote to operate on (required)
+
+. "$(dirname "$0")/../lib/funcs.sh"
 
 [[ -n $HOMEBREW_GITHUB_UPSTREAM ]] || fatal "HOMEBREW_GITHUB_UPSTREAM not set"
 if mainbranch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null); then
@@ -11,12 +14,11 @@ else
   fatal "Not in Git repo"
 fi
 currbranch=$(git branch --show-current)
-if [[ $# -eq 0 ]]; then
+if [[ $# -gt 0 ]]; then
+  for b in "$@"; do
+    [[ $b == "$mainbranch" ]] && continue
+    [[ $b == "$currbranch" ]] && git checkout "${mainbranch}"
+    cmd git push -d "${HOMEBREW_GITHUB_UPSTREAM}" "$b" && cmd git branch -D "$b"
+  done
   git branch -a
-  exit 1
 fi
-for b in "$@"; do
-  [[ $b == $currbranch ]] && git checkout ${mainbranch}
-  git push -d ${HOMEBREW_GITHUB_UPSTREAM} $b && git branch -D $b
-done
-git branch -a
