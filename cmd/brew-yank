@@ -20,7 +20,7 @@ extract() {
       *(\ )end*(\ )) if [[ -n $ignore_lines ]]; then ignore_lines=""; else echo "$REPLY"; fi;;
       *) if [[ -z "$ignore_lines" ]]; then echo "$REPLY"; fi;;
     esac
-  done > "${tapdir}/Formula/${2}@${3}.rb" && info "Formula '$formula' version $ver written to: ${tapdir}/Formula/${2}@${3}.rb"
+  done > "${tapdir}/Formula/${formula}@${ver}.rb" && info "Formula '$formula' version $ver written to: ${tapdir}/Formula/${formula}@${ver}.rb"
 }
 
 formula=$1
