@@ -28,7 +28,6 @@ ver=$2
 tap=$3
 
 cd "$(brew --repo homebrew/core)"
-[[ -s Formula/"$1".rb ]] || fatal "Core formula '$1' not found"
 git log --oneline -- Formula/"$1".rb | while read -r h n v _; do
   if [[ $n == "$formula" && $v == "$ver" ]]; then
     extract "$h" "$n" "$v" "$tap"
