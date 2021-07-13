@@ -28,7 +28,9 @@ ver=$2
 tap=$3
 
 cd "$(brew --repo homebrew/core)"
-git log --oneline -- Formula/"$1".rb | while read -r h n v _; do
+[[ -s Formula/"$formula".rb ]] || warn "${Tty_cyan}${formula}${Tty_reset} no longer exists.
+The older version that you're extracting may no longer build on your system."
+git log --oneline -- Formula/"$formula".rb | while read -r h n v _; do
   if [[ $n == "$formula" && $v == "$ver" ]]; then
     extract "$h" "$n" "$v" "$tap"
     exit $?
