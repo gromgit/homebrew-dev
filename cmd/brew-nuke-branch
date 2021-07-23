@@ -18,7 +18,9 @@ if [[ $# -gt 0 ]]; then
   for b in "$@"; do
     [[ $b == "$mainbranch" ]] && continue
     [[ $b == "$currbranch" ]] && git checkout "${mainbranch}"
-    cmd git push -d "${HOMEBREW_GITHUB_UPSTREAM}" "$b" && cmd git branch -D "$b"
+    # Check for remote branch
+    [[ -n "$(git ls-remote "${HOMEBREW_GITHUB_UPSTREAM}" "$b")" ]] && cmd git push -d "${HOMEBREW_GITHUB_UPSTREAM}" "$b"
+    [[ -n "$(git branch --list "$b")" ]] && cmd git branch -D "$b"
   done
   git branch -a
 fi
