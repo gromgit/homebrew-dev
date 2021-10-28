@@ -34,6 +34,16 @@ for cmd in jq gh; do
   command -v "$cmd" &>/dev/null || fatal "$cmd not available"
 done
 
+tap_base=$(brew --repo homebrew/core); tap_base=${tap_base%/homebrew/homebrew-core}
+
+rb2formula() {
+  if [[ -f $1 ]] && [[ $1 =~ ${tap_base}/([^/]+)/homebrew-([^/]+)/Formula/(.*)\.rb ]]; then
+    echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}"
+  else
+    return 1
+  fi
+}
+
 while true; do
   case "$1" in
     -t|--pre-test) pre_test=1;;
@@ -50,9 +60,15 @@ set -e
 
 for f in "$@"; do
 
-  # XYZ = homebrew/core/XYZ
+  # fully-qualify path if needed
   if [[ $f != */* ]]; then
-    f=homebrew/core/$f
+    f2=$(rb2formula $(\ls "${tap_base}"/*/*/Formula/"${f}".rb 2>/dev/null))
+    if [[ -n "$f2" ]]; then
+      f=$f2
+    else
+      error "Can't find formula ${f}, skipping."
+      continue
+    fi
   fi
 
   if [[ $f =~ ([^/]+)/([^/]+)/([^/]+) ]]; then
@@ -67,7 +83,7 @@ for f in "$@"; do
 
     # Bump the version if needed
     if [[ -n $new_version ]]; then
-      cmd brew bump-formula-pr --write --version "$new_version" "$f"
+      cmd brew bump-formula-pr --write-only --version "$new_version" "$f"
     fi
 
     # Clean out any existing installation
