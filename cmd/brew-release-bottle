@@ -31,7 +31,9 @@ jquery() {
 
 shopt -s lastpipe
 for cmd in jq gh; do
-  command -v "$cmd" &>/dev/null || fatal "$cmd not available"
+  if ! command -v "$cmd" &>/dev/null; then
+    brew install "$cmd " || fatal "$cmd not available"
+  fi
 done
 
 tap_base=$(brew --repo homebrew/core); tap_base=${tap_base%/homebrew/homebrew-core}
