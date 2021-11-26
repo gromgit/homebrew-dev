@@ -32,7 +32,7 @@ jquery() {
 shopt -s lastpipe
 for cmd in jq gh; do
   if ! command -v "$cmd" &>/dev/null; then
-    brew install "$cmd " || fatal "$cmd not available"
+    brew install "$cmd" || fatal "$cmd not available"
   fi
 done
 
