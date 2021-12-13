@@ -77,6 +77,11 @@ for f in "$@"; do
     tap=${BASH_REMATCH[1]}/${BASH_REMATCH[2]}
     ghrepo=${BASH_REMATCH[1]}/homebrew-${BASH_REMATCH[2]}
     repodir=$(brew --repo "$tap")
+    if [[ -s ${repodir}/.gromgit/repo ]]; then
+      real_ghrepo=$(<"${repodir}/.gromgit/repo")
+    else
+      real_ghrepo=$ghrepo
+    fi
     fname=${BASH_REMATCH[3]}
     # First make sure the tap's up-to-date
     git_in "$repodir" pull
@@ -107,7 +112,7 @@ for f in "$@"; do
     fver=$(jquery .versions.stable)
     if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
       # New bottle section
-      root_url=https://github.com/${ghrepo}/releases/download/${fname}-${fver}
+      root_url=https://github.com/${real_ghrepo}/releases/download/${fname}-${fver}
       keep_old=()
     else
       root_url=$(jquery .bottle.stable.root_url)
@@ -127,12 +132,12 @@ for f in "$@"; do
     jq -r '.[].bottle.tags|.[]|"\(.local_filename) \(.filename)"' ./*.json | while read -r lf rf; do
       mv -v "$lf" "$rf"
       tag=${root_url##*/}
-      if cmd gh release view "$tag" -R "$ghrepo" >&/dev/null; then
+      if cmd gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
         # Release already created
-        cmd gh release upload "$tag" "$rf" -R "$ghrepo" --clobber
+        cmd gh release upload "$tag" "$rf" -R "$real_ghrepo" --clobber
       else
         # We need to create it with this new file
-        cmd gh release create "$tag" "$rf" -R "$ghrepo"
+        cmd gh release create "$tag" "$rf" -R "$real_ghrepo"
       fi
     done
     git_in "$repodir" push 
