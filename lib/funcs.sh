@@ -8,12 +8,17 @@ fi
 Tty_mkbold() { Tty_escape "1;${1:-39}"; }
 Tty_red=$(Tty_mkbold 31)
 Tty_green=$(Tty_mkbold 32)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_brown=$(Tty_mkbold 33)
 Tty_blue=$(Tty_mkbold 34)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_magenta=$(Tty_mkbold 35)
 Tty_cyan=$(Tty_mkbold 36)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_white=$(Tty_mkbold 37)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_underscore=$(Tty_escape 38)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_bold=$(Tty_mkbold 39)
 Tty_reset=$(Tty_escape 0)
 
