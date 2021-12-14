@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#:`brew upload-local`
+#:    Upload built bottles & merge JSON into formulae
+
+# shellcheck source=/dev/null
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs brew rsync gh
+
+bottle_root=~/Library/Caches/build-core-mojave
+
+cd "$bottle_root" || fatal "Can't cd into $bottle_root"
+mkdir -p .done
+
+for j in */*.json; do
+  [[ -s $j ]] || continue
+  d="${j%/*}"
+  jq -r '.[].bottle|(.tags|.[]|"\(.local_filename) \(.filename)"),(.root_url)' "$j" | while read -r lf rf; do
+    read -r root_url
+    #printf '[%30s] %50s -> %50s (%s)\n' "$d" "$lf" "$rf" "$root_url"
+    #echo "[$d] $lf -> $rf"
+    if [[ $root_url =~ https://github.com/([^/]*/[^/]*)/.* ]]; then
+      real_ghrepo="${BASH_REMATCH[1]}"
+    else
+      warn "Unable to determine GH repo, skipping $d"
+      continue
+    fi
+    rf=$(deurlify "$rf")
+    [[ -s "$d/$lf" ]] && cmd mv -v "$d/$lf" "$d/$rf"
+    tag=${root_url##*/}
+    if cmd gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
+      # Release already created
+      cmd gh release upload "$tag" "$d/$rf" --clobber -R "$real_ghrepo"
+    else
+      # We need to create it with this new file
+      cmd gh release create "$tag" "$d/$rf" -R "$real_ghrepo"
+    fi && 
+    cmd brew bottle --merge --write "$j" &&
+    cmd rsync -avm "$d"/ .done/"$d"/ && 
+    cmd rm -fr "$d"
+  done
+done
