@@ -7,6 +7,7 @@
 #:    `-nc`|`--no-cleanup`       : Don't remove `formula` after bottling
 #:    `-V` |`--bump-version` *ver* : Bump `formula` version to *ver*
 
+# shellcheck source=/dev/null
 . "$(dirname "$0")/../lib/funcs.sh"
 
 trap cleanup EXIT
@@ -64,6 +65,7 @@ for f in "$@"; do
 
   # fully-qualify path if needed
   if [[ $f != */* ]]; then
+    # shellcheck disable=SC2046 # we WANT word-splitting here
     f2=$(rb2formula $(\ls "${tap_base}"/*/*/Formula/"${f}".rb 2>/dev/null))
     if [[ -n "$f2" ]]; then
       f=$f2
