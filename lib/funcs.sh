@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # string formatters
 if [[ -t 1 ]]; then
   Tty_escape() { printf "\033[%sm" "$1"; }
@@ -18,16 +19,17 @@ Tty_reset=$(Tty_escape 0)
 
 # XDG Base Directory Specifications
 # REF: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-export XDG_DATA_HOME=${XDG_DATA_HOME:-${HOME}/.local/share}
-export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
-export XDG_STATE_HOME=${XDG_STATE_HOME:-${HOME}/.local/state}
-export XDG_DATA_DIRS=${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}
-export XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS:-/etc/xdg}
-export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-${HOME}/.local/state}"
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
+export XDG_CONFIG_DIRS="${XDG_CONFIG_DIRS:-/etc/xdg}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
 # fatal: Report fatal error
 # USAGE: fatal <msg> ...
 fatal() {
+  # shellcheck disable=SC2154 # msg_prefix is set externally
   echo "${Tty_red}${msg_prefix}FATAL ERROR:${Tty_reset} $*" >&2
   exit 1
 }
@@ -77,5 +79,5 @@ git_in() {
   local repo=$1; shift
   pushd "$repo" >/dev/null || fatal "Can't cd to '$repo'"
   cmd git "$@"
-  popd >/dev/null
+  popd >/dev/null || fatal "Can't popd"
 }
