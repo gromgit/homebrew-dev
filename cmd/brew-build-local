@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+#:`brew build-local` [options] *formula*...
+#:    Build/test/bottle *formula* for GitHub distribution
+#:    `-n | --dry-run` : Show the commands that would be run
+
+# shellcheck source=/dev/null
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs brew git lsof
+
+shopt -s lastpipe
+
+repo=$(brew --repo homebrew/core)
+cache_dir=$(brew --cache)
+
+clean_cache() {
+  df -k "$cache_dir"/ | while read -r fs _ _ _ cap _; do
+    [[ $fs == /* ]] || continue
+    # Clean up if cache partition is over 70% used
+    [[ ${cap%\%} -gt 70 || $1 == "-f" ]] && {
+      info "Cleaning up cache dir"
+      cmd chmod -R u+w "$cache_dir"/
+      cmd rm -fr "$cache_dir"/*
+    }
+  done
+}
+
+os_name() {
+  case "$(sw_vers -productVersion)" in
+    12.*) echo "monterey";;
+    11.*) echo "big_sur";;
+    10.15.*) echo "catalina";;
+    10.14.*) echo "mojave";;
+    10.13.*) echo "high_sierra";;
+    10.12.*) echo "sierra";;
+    10.11.*) echo "el_capitan";;
+    10.10.*) echo "yosemite";;
+    10.9.*) echo "mavericks";;
+    10.8.*) echo "mountain_lion";;
+    10.7.*) echo "lion";;
+    10.6.*) echo "snow_leopard";;
+    *) echo "unknown";;
+  esac
+}
+my_os=$(os_name)
+if [[ $(uname -s) == "Darwin" ]]; then
+  os_blocker=":linux"
+  build_dir=~/Library/Caches/build-core-${my_os}
+else
+  os_blocker=":macos"
+  build_dir=$(dirname "$(brew --cache)")/build-core-${my_os}
+fi
+mkdir -p "$build_dir"
+
+if [[ -s ${repo}/.private/repo ]]; then
+  base_url=https://github.com/$(<"${repo}"/.private/repo)
+else
+  fatal "${repo}/.private/repo not found"
+fi
+
+info "START: $(basename "$0")"
+
+cd "$repo" || fatal "Can't cd into $repo"
+
+# shellcheck disable=SC1091 # sourcing a config file
+[[ -s .private/brewrc ]] && . .private/brewrc
+
+while true; do
+  case "$1" in
+    -n|--dry-run) cmd() { info "DRY-RUN: $*" ; } ;;
+    *) break;;
+  esac
+  shift
+done
+
+if [[ $# -eq 0 ]]; then
+  # Automatically select all non-bottled formulae
+  work=()
+  grep -L "bottle do" Formula/*.rb | while read -r i; do
+    # Now drop everything that can't be built
+    # shellcheck disable=SC2154
+    for drop in "${block_depends[@]}"; do
+      if grep -Eq "depends_on $drop" "$i"; then
+        info "Ignoring $(basename "$i" .rb) because $drop"
+        continue 2
+      fi
+    done
+    work+=("$(basename "$i" .rb)")
+  done
+  set -- "${work[@]}"
+fi
+
+# Sort by dependency tree
+# shellcheck disable=SC2046 # we WANT word-splitting here
+set -- $(brew deps -n --include-build --include-test --union "$@") "$@"
+
+for f in "$@"; do
+  [[ -e Aliases/$f ]] && {
+    f2=$(basename "$(realpath "Aliases/$f")" .rb)
+    info "Alias($f) -> $f2"
+    f=f2
+  }
+  formula=Formula/${f}.rb
+  installed=""
+  [[ -d ${HOMEBREW_CELLAR}/${f} ]] && installed=yes
+  if grep -q "depends_on $os_blocker" "$formula"; then
+    warn "Skipping $f - depends_on $os_blocker"
+    continue
+  fi
+  grep 'disable!' "$formula" | while read -r _ f1 f2 _; do
+    if [[ $f1 == "date:" && ${f2//[\",]} < $(date +%Y-%m-d) ]]; then
+      warn "Skipping $f - disabled"
+      continue 2
+    fi
+  done
+  if ! grep -q "bottle do" "$formula"; then
+    (
+      mkdir -p "$build_dir/$f"
+      cd "$build_dir/$f" || fatal "Can't cd into $(dirname "$0")"
+      cmd brew test-bot --only-formulae --publish --root-url="${base_url}/releases/download/${f}" "$f"
+    )
+    cmd brew upload-local &&
+    rm -f "${HOMEBREW_CELLAR}"/*.tar &&
+    cmd git push
+  fi
+  # Clean up manually afterwards
+  if [[ -z $installed && -d $HOMEBREW_CELLAR/$f ]]; then
+    cmd brew rm "$f" && cmd brew autoremove
+  fi
+  clean_cache
+done
+
+# Do a final cache cleanup
+clean_cache -f
+
+# And see what's still holding on to the lock (if exists)
+sleep 5
+[[ -f /tmp/homebrew-cron.lock ]] && cmd lsof /tmp/homebrew-cron.lock
+
+info "DONE: $(basename "$0")"
