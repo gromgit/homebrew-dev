@@ -71,6 +71,35 @@ need_progs() {
   fi
 }
 
+# deurlify: %-decode input strings
+# REF: https://en.wikipedia.org/wiki/Percent-encoding
+# USAGE: deurlify <str> ...
+deurlify() {
+  local s
+  for s in "$@"; do
+    s=${s//%21/\!}
+    s=${s//%23/\#}
+    s=${s//%24/\$}
+    s=${s//%25/\%}
+    s=${s//%26/\&}
+    s=${s//%27/\'}
+    s=${s//%28/\(}
+    s=${s//%29/\)}
+    s=${s//%2[aA]/\*}
+    s=${s//%2[bB]/\+}
+    s=${s//%2[cC]/\,}
+    s=${s//%2[fF]/\/}
+    s=${s//%3[aA]/\:}
+    s=${s//%3[bB]/\;}
+    s=${s//%3[dD]/\=}
+    s=${s//%3[fF]/\?}
+    s=${s//%40/\@}
+    s=${s//%5[bB]/\[}
+    s=${s//%5[dD]/\]}
+    echo "$s"
+  done
+}
+
 # cmd: Show command being run
 # USAGE: cmd <cmd> ...
 cmd() {
