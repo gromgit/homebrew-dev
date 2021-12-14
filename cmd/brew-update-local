@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #:`brew update-local`
-#:    Update local repo against reference
+#:    Update local core repo against reference
 
 . "$(dirname "$0")/../lib/funcs.sh"
 need_progs brew rsync gh
@@ -40,34 +40,37 @@ my_os=$(os_name)
 repo=$(brew --repo homebrew/core)
 cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
 base=${repo##*/}
+real=homebrew-realcore
+
+info "START: $(basename "$0")"
+
+[[ -d $real ]] || {
+  mv "$base" "$real" || fatal "No '$base' and no '$real', can't proceed."
+}
+[[ -d $base ]] || {
+  info "Creating new Homebrew core repo"
+  while [[ -z "$remote_user" ]]; do
+    read -rp "Remote user: " remote_user
+  done
+  remote_repo=${remote_user,,}/homebrew-core-${my_os}
+  base_url=https://github.com/${remote_repo}
+  cmd brew tap-new --github-packages -d -v homebrew/core
+  cmd git remote set-url origin "$base_url"
+  cmd gh repo create "$base_url" --public -y
+  mkdir -p "$repo/.private"
+  echo "$remote_repo" > "$repo/.private/repo"
+  cmd git -C "$repo" add .private
+}
+
 if [[ -s ${repo}/.private/repo ]]; then
   base_url=https://github.com/$(<"${repo}"/.private/repo)
 else
   fatal "${repo}/.private/repo not found"
 fi
 base_ghrepo=${base_url#*github.com/}
-real=homebrew-realcore
-
-info "START: $(basename "$0")"
-
-[[ -d $real ]] || mv "$base" "$real"
-[[ -d $base ]] || {
-  info "Creating new Homebrew core repo"
-  while [[ $remote_repo != */* ]]; do
-    read -rp "Remote user: " remote_user
-  done
-  remote_repo=${remote_user,,}/homebrew-core-${my_os}
-  base_url=https://github.com/${remote_repo}
-  brew tap-new --github-packages -d -v homebrew/core
-  git remote set-url origin "$base_url"
-  gh repo create "$base_url" --public -y
-}
 
 info "Correcting timestamps in real repo"
-( 
-  cd "$real" || fatal "Can't cd into $real"
-  cmd brew fix-timestamps -f "$base"/.private/last_timestamp
-)
+cmd brew fix-timestamps -C "$real" -f "$repo"/.private/last_timestamp
 
 info "Updating core repo"
 # Don't sync anything that's marked "sticky"
@@ -95,7 +98,7 @@ rsync -avum --exclude-from="$base/.private/rsync-excludes" --exclude-from="$HOME
 )
 
 # Do a Big-Bang fix at the end
-cmd brew style --fix homebrew/core
+cmd brew style --fix homebrew/core || fatal "brew style failed"
 
 (
   cd "$base" || fatal "update: Can't cd to $base"
