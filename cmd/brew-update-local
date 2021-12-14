@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+#:`brew update-local`
+#:    Update local repo against reference
+
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs brew rsync gh
+if [[ $(uname -s) == "Darwin" ]]; then
+  need_progs sw_vers
+else  # Linux
+  need_progs getconf
+fi
+
+os_name() {
+  if [[ $(uname -s) == "Darwin" ]]; then
+    case "$(sw_vers -productVersion)" in
+      12.*) echo "monterey";;
+      11.*) echo "big_sur";;
+      10.15.*) echo "catalina";;
+      10.14.*) echo "mojave";;
+      10.13.*) echo "high_sierra";;
+      10.12.*) echo "sierra";;
+      10.11.*) echo "el_capitan";;
+      10.10.*) echo "yosemite";;
+      10.9.*) echo "mavericks";;
+      10.8.*) echo "mountain_lion";;
+      10.7.*) echo "lion";;
+      10.6.*) echo "snow_leopard";;
+      *) echo "unknown";;
+    esac
+  else  # Linux
+    if [[ $(uname -m) == "aarch64" ]]; then
+      echo "aarch_linux"
+    else
+      fatal "Homebrew only works on 64-bit Linux"
+    fi
+  fi
+}
+
+my_os=$(os_name)
+repo=$(brew --repo homebrew/core)
+cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
+base=${repo##*/}
+if [[ -s ${repo}/.private/repo ]]; then
+  base_url=https://github.com/$(<"${repo}"/.private/repo)
+else
+  fatal "${repo}/.private/repo not found"
+fi
+base_ghrepo=${base_url#*github.com/}
+real=homebrew-realcore
+
+info "START: $(basename "$0")"
+
+[[ -d $real ]] || mv "$base" "$real"
+[[ -d $base ]] || {
+  info "Creating new Homebrew core repo"
+  while [[ $remote_repo != */* ]]; do
+    read -rp "Remote user: " remote_user
+  done
+  remote_repo=${remote_user,,}/homebrew-core-${my_os}
+  base_url=https://github.com/${remote_repo}
+  brew tap-new --github-packages -d -v homebrew/core
+  git remote set-url origin "$base_url"
+  gh repo create "$base_url" --public -y
+}
+
+info "Correcting timestamps in real repo"
+( 
+  cd "$real" || fatal "Can't cd into $real"
+  cmd brew fix-timestamps -f "$base"/.private/last_timestamp
+)
+
+info "Updating core repo"
+# Don't sync anything that's marked "sticky"
+cat <<EOS > "$HOMEBREW_TEMP"/rsync-excludes
+.git*
+.private
+$(find -- * -type f -perm ++t)
+EOS
+rsync -avum --exclude-from="$base/.private/rsync-excludes" --exclude-from="$HOMEBREW_TEMP"/rsync-excludes "$real"/ "$base"/
+(
+  cd "$base" || fatal "update: Can't cd to $base"
+  find Formula -type f -print | while read -r f; do
+    fbase=$(basename "$f" .rb)
+    # Apply patch if available
+    if [[ -s patches/${fbase}.patch ]] && ! git diff --exit-code "$f" ; then
+      info "Patching $f"
+      patch -p1 < patches/"${fbase}".patch
+    fi
+    # Strip out bottle block if we don't find our OS listed
+    if ! grep -Eq "sha256 .*(${my_os}|all):" "$f"; then
+      info "Stripping $f"
+      sed '/bottle do/,/end/d' < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
+    fi
+  done
+)
+
+# Do a Big-Bang fix at the end
+cmd brew style --fix homebrew/core
+
+(
+  cd "$base" || fatal "update: Can't cd to $base"
+  # Automatically deal with deleted files (skipping the sticky ones)
+  find ./* -perm ++t -prune -o \! -type d | while read -r f; do
+    if [[ ! -e ../"$real/$f" && ! -k "$f" ]]; then
+      warn "Removing deleted file $f"
+      cmd git rm -fr "$f"
+      if [[ $f == ./Formula/* ]]; then
+        fname=$(basename "$f" .rb)
+        if gh release view "$fname" -R "$base_ghrepo" >&/dev/null; then
+          warn "Removing assets for formula $fname"
+          cmd gh release delete "$fname" -R "$base_ghrepo" -y
+        fi
+      fi
+      cmd git add "$f"
+    fi
+    # Add non-formulae automatically
+    [[ $f == ./Formula/* ]] || cmd git add "$f"
+  done
+  # Update the base repo
+  cmd git commit -m "Updates from $real $(date +%Y%m%d.%H%M%S)"
+  cmd git push
+)
+
+info "DONE: $(basename "$0")"
