@@ -24,23 +24,6 @@ clean_cache() {
   done
 }
 
-os_name() {
-  case "$(sw_vers -productVersion)" in
-    12.*) echo "monterey";;
-    11.*) echo "big_sur";;
-    10.15.*) echo "catalina";;
-    10.14.*) echo "mojave";;
-    10.13.*) echo "high_sierra";;
-    10.12.*) echo "sierra";;
-    10.11.*) echo "el_capitan";;
-    10.10.*) echo "yosemite";;
-    10.9.*) echo "mavericks";;
-    10.8.*) echo "mountain_lion";;
-    10.7.*) echo "lion";;
-    10.6.*) echo "snow_leopard";;
-    *) echo "unknown";;
-  esac
-}
 my_os=$(os_name)
 if [[ $(uname -s) == "Darwin" ]]; then
   os_blocker=":linux"
@@ -51,10 +34,10 @@ else
 fi
 mkdir -p "$build_dir"
 
-if [[ -s ${repo}/.private/repo ]]; then
-  base_url=https://github.com/$(<"${repo}"/.private/repo)
+if [[ -s ${repo}/.settings/repo ]]; then
+  base_url=https://github.com/$(<"${repo}"/.settings/repo)
 else
-  fatal "${repo}/.private/repo not found"
+  fatal "${repo}/.settings/repo not found"
 fi
 
 info "START: $(basename "$0")"
@@ -62,7 +45,7 @@ info "START: $(basename "$0")"
 cd "$repo" || fatal "Can't cd into $repo"
 
 # shellcheck disable=SC1091 # sourcing a config file
-[[ -s .private/brewrc ]] && . .private/brewrc
+[[ -s .settings/brewrc ]] && . .settings/brewrc
 
 while true; do
   case "$1" in

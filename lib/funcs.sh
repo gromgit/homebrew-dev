@@ -31,6 +31,9 @@ export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
 export XDG_CONFIG_DIRS="${XDG_CONFIG_DIRS:-/etc/xdg}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
+# Derive some important vars
+cache_root=$(dirname "$(realpath -e "$(brew --cache)")")
+
 # fatal: Report fatal error
 # USAGE: fatal <msg> ...
 fatal() {
@@ -98,6 +101,34 @@ deurlify() {
     s=${s//%5[dD]/\]}
     echo "$s"
   done
+}
+
+# os_name: Print Homebrew name of OS
+# USAGE: os_name
+os_name() {
+  if [[ $(uname -s) == "Darwin" ]]; then
+    case "$(sw_vers -productVersion)" in
+      12.*) echo "monterey";;
+      11.*) echo "big_sur";;
+      10.15.*) echo "catalina";;
+      10.14.*) echo "mojave";;
+      10.13.*) echo "high_sierra";;
+      10.12.*) echo "sierra";;
+      10.11.*) echo "el_capitan";;
+      10.10.*) echo "yosemite";;
+      10.9.*) echo "mavericks";;
+      10.8.*) echo "mountain_lion";;
+      10.7.*) echo "lion";;
+      10.6.*) echo "snow_leopard";;
+      *) echo "unknown";;
+    esac
+  else  # Linux
+    if [[ $(uname -m) == "aarch64" ]]; then
+      echo "aarch64_linux"
+    else
+      fatal "Homebrew only works on 64-bit Linux"
+    fi
+  fi
 }
 
 # cmd: Show command being run

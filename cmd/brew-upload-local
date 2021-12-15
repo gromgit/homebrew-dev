@@ -4,20 +4,32 @@
 
 # shellcheck source=/dev/null
 . "$(dirname "$0")/../lib/funcs.sh"
-need_progs brew rsync gh
+need_progs brew rsync gh jq
 
-bottle_root=~/Library/Caches/build-core-mojave
+my_os=$(os_name)
+core=$(brew --repo homebrew/core)
+build_dir=${cache_root}/build-core-${my_os}
 
-cd "$bottle_root" || fatal "Can't cd into $bottle_root"
+cd "$build_dir" || fatal "Can't cd into $build_dir"
 mkdir -p .done
 
 for j in */*.json; do
   [[ -s $j ]] || continue
   d="${j%/*}"
-  jq -r '.[].bottle|(.tags|.[]|"\(.local_filename) \(.filename)"),(.root_url)' "$j" | while read -r lf rf; do
+  jq -r '
+  .[] | 
+    (.bottle |
+      (.tags | .[] | "\(.local_filename) \(.filename)"),
+      .root_url
+    ),
+    .formula.name,
+    .formula.pkg_version,
+    .formula.tap_git_path
+  ' "$j" | while read -r lf rf; do
     read -r root_url
-    #printf '[%30s] %50s -> %50s (%s)\n' "$d" "$lf" "$rf" "$root_url"
-    #echo "[$d] $lf -> $rf"
+    read -r formula
+    read -r pkg_version
+    read -r tap_git_path
     if [[ $root_url =~ https://github.com/([^/]*/[^/]*)/.* ]]; then
       real_ghrepo="${BASH_REMATCH[1]}"
     else
@@ -34,8 +46,11 @@ for j in */*.json; do
       # We need to create it with this new file
       cmd gh release create "$tag" "$d/$rf" -R "$real_ghrepo"
     fi && 
+    cmd git -C "$core" add "$tap_git_path" &&
     cmd brew bottle --merge --write "$j" &&
     cmd rsync -avm "$d"/ .done/"$d"/ && 
-    cmd rm -fr "$d"
+    cmd rm -fr "$d" &&
+    cmd git -C "$core" add "$tap_git_path" &&
+    cmd git -C "$core" commit -m "${formula}: update ${pkg_version} bottle" "$tap_git_path"
   done
 done

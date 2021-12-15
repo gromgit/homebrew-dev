@@ -10,32 +10,6 @@ else  # Linux
   need_progs getconf
 fi
 
-os_name() {
-  if [[ $(uname -s) == "Darwin" ]]; then
-    case "$(sw_vers -productVersion)" in
-      12.*) echo "monterey";;
-      11.*) echo "big_sur";;
-      10.15.*) echo "catalina";;
-      10.14.*) echo "mojave";;
-      10.13.*) echo "high_sierra";;
-      10.12.*) echo "sierra";;
-      10.11.*) echo "el_capitan";;
-      10.10.*) echo "yosemite";;
-      10.9.*) echo "mavericks";;
-      10.8.*) echo "mountain_lion";;
-      10.7.*) echo "lion";;
-      10.6.*) echo "snow_leopard";;
-      *) echo "unknown";;
-    esac
-  else  # Linux
-    if [[ $(uname -m) == "aarch64" ]]; then
-      echo "aarch_linux"
-    else
-      fatal "Homebrew only works on 64-bit Linux"
-    fi
-  fi
-}
-
 my_os=$(os_name)
 repo=$(brew --repo homebrew/core)
 cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
@@ -49,37 +23,41 @@ info "START: $(basename "$0")"
 }
 [[ -d $base ]] || {
   info "Creating new Homebrew core repo"
+  remote_user=${HOMEBREW_GITHUB_UPSTREAM}
   while [[ -z "$remote_user" ]]; do
     read -rp "Remote user: " remote_user
   done
   remote_repo=${remote_user,,}/homebrew-core-${my_os}
   base_url=https://github.com/${remote_repo}
   cmd brew tap-new --github-packages -d -v homebrew/core
-  cmd git remote set-url origin "$base_url"
+  cmd git -C "$repo" remote add origin "$base_url"
   cmd gh repo create "$base_url" --public -y
-  mkdir -p "$repo/.private"
-  echo "$remote_repo" > "$repo/.private/repo"
-  cmd git -C "$repo" add .private
+  mkdir -p "$repo/.settings"
+  echo "$remote_repo" > "$repo/.settings/repo"
+  touch "$repo/.settings/rsync-excludes" "$repo/.settings/brewrc"
+  cmd git -C "$repo" add .
+  cmd git -C "$repo" commit -m "new tap repo"
+  cmd git -C "$repo" push --all --set-upstream origin
 }
 
-if [[ -s ${repo}/.private/repo ]]; then
-  base_url=https://github.com/$(<"${repo}"/.private/repo)
+if [[ -s ${repo}/.settings/repo ]]; then
+  base_url=https://github.com/$(<"${repo}"/.settings/repo)
 else
-  fatal "${repo}/.private/repo not found"
+  fatal "${repo}/.settings/repo not found"
 fi
 base_ghrepo=${base_url#*github.com/}
 
 info "Correcting timestamps in real repo"
-cmd brew fix-timestamps -C "$real" -f "$repo"/.private/last_timestamp
+cmd brew fix-timestamps -C "$real" -f "$repo"/.settings/last_timestamp
 
 info "Updating core repo"
 # Don't sync anything that's marked "sticky"
 cat <<EOS > "$HOMEBREW_TEMP"/rsync-excludes
 .git*
-.private
+.settings
 $(find -- * -type f -perm ++t)
 EOS
-rsync -avum --exclude-from="$base/.private/rsync-excludes" --exclude-from="$HOMEBREW_TEMP"/rsync-excludes "$real"/ "$base"/
+rsync -avum --exclude-from="$base/.settings/rsync-excludes" --exclude-from="$HOMEBREW_TEMP"/rsync-excludes "$real"/ "$base"/
 (
   cd "$base" || fatal "update: Can't cd to $base"
   find Formula -type f -print | while read -r f; do
