@@ -57,6 +57,7 @@ cat <<EOS > "$HOMEBREW_TEMP"/rsync-excludes
 .settings
 $(find -- * -type f -perm ++t)
 EOS
+[[ -f $base/.settings/rsync-excludes ]] || touch "$base/.settings/rsync-excludes"
 rsync -avum --exclude-from="$base/.settings/rsync-excludes" --exclude-from="$HOMEBREW_TEMP"/rsync-excludes "$real"/ "$base"/
 (
   cd "$base" || fatal "update: Can't cd to $base"
