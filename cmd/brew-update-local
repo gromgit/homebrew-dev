@@ -69,11 +69,14 @@ rsync -avum --exclude-from="$base/.settings/rsync-excludes" --exclude-from="$HOM
       patch -p1 < patches/"${fbase}".patch
     fi
     # Strip out bottle block if we don't find our OS listed
-    if ! grep -Eq "sha256 .*(${my_os}|all):" "$f"; then
+    if grep -Eq "sha256 .*(${my_os}|all):" "$f"; then
+      cmd git add "$f"
+    else
       info "Stripping $f"
       sed '/bottle do/,/end/d' < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
     fi
   done
+  cmd git commit -m "Auto-add formulae not needed rebuild $(date +%Y%m%d.%H%M%S)"
 )
 
 # Do a Big-Bang fix at the end
