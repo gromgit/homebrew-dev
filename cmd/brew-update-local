@@ -51,32 +51,45 @@ info "Correcting timestamps in real repo"
 cmd brew fix-timestamps -C "$real" -f "$repo"/.settings/last_timestamp
 
 info "Updating core repo"
+
+rsync_opts=()
+if [[ -s $base/.settings/last_commit ]]; then
+  # Let git tell us what changed since the last time we updated
+  cmd git -C "$real" log --pretty='format:' --name-only "$(<"$base/.settings/last_commit")"..HEAD | sort -u > "$HOMEBREW_TEMP"/rsync-includes
+  [[ -s "$HOMEBREW_TEMP"/rsync-includes ]] && rsync_opts+=(--include-from="$HOMEBREW_TEMP"/rsync-includes)
+fi
 # Don't sync anything that's marked "sticky"
 cat <<EOS > "$HOMEBREW_TEMP"/rsync-excludes
-.git*
-.settings
 $(find -- * -type f -perm ++t)
 EOS
-[[ -f $base/.settings/rsync-excludes ]] || touch "$base/.settings/rsync-excludes"
-rsync -avum --exclude-from="$base/.settings/rsync-excludes" --exclude-from="$HOMEBREW_TEMP"/rsync-excludes "$real"/ "$base"/
+rsync_opts+=(--exclude-from="$HOMEBREW_TEMP"/rsync-excludes)
+# Add any fixed excludes
+if [[ -s $base/.settings/rsync-excludes ]]; then
+  rsync_opts+=(--exclude-from="$base/.settings/rsync-excludes")
+fi
+cmd rsync -avum "${rsync_opts[@]}" "$real"/ "$base"/
+
 (
   cd "$base" || fatal "update: Can't cd to $base"
   find Formula -type f -print | while read -r f; do
+    # Don't touch sticky formulae
+    [[ -k $f ]] && continue
     fbase=$(basename "$f" .rb)
     # Apply patch if available
     if [[ -s patches/${fbase}.patch ]] && ! git diff --exit-code "$f" ; then
       info "Patching $f"
       patch -p1 < patches/"${fbase}".patch
     fi
-    # Strip out bottle block if we don't find our OS listed
     if grep -Eq "sha256 .*(${my_os}|all):" "$f"; then
+      # This formula doesn't need rebuilding
       cmd git add "$f"
     else
+      # Strip out irrelevant bottle block
       info "Stripping $f"
       sed '/bottle do/,/end/d' < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
     fi
   done
-  cmd git commit -m "Auto-add formulae not needed rebuild $(date +%Y%m%d.%H%M%S)"
+  cmd git commit -m "As-is formulae $(date +%Y%m%d.%H%M%S)"
 )
 
 # Do a Big-Bang fix at the end
@@ -105,5 +118,8 @@ cmd brew style --fix homebrew/core || fatal "brew style failed"
   cmd git commit -m "Updates from $real $(date +%Y%m%d.%H%M%S)"
   cmd git push
 )
+
+# Record our last commit
+git -C "$real" log --pretty=format:%H HEAD | head -1 > "$base/.settings/last_commit"
 
 info "DONE: $(basename "$0")"
