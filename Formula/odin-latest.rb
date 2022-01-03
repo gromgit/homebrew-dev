@@ -16,6 +16,7 @@ class OdinLatest < Formula
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-01"
     sha256 cellar: :any, monterey: "b48a624f85ee8192cc6cfa1c80eea30c4121bfe28127f3edee3d01ef8298d434"
     sha256 cellar: :any, big_sur:  "5f700f360880331a9ddb13cd962bb45c89f7f8145ba1e005f832e5713d0bb690"
+    sha256 cellar: :any, catalina: "f93ad8f0dc2e0d1b353706f4fdad24decf01baee0bbabcfe094cc423c937b250"
   end
 
   # Check if this can be switched to `llvm` at next release
