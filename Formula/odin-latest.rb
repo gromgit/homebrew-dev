@@ -14,14 +14,15 @@ class OdinLatest < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-01"
-    sha256 cellar: :any, monterey: "b48a624f85ee8192cc6cfa1c80eea30c4121bfe28127f3edee3d01ef8298d434"
-    sha256 cellar: :any, big_sur:  "5f700f360880331a9ddb13cd962bb45c89f7f8145ba1e005f832e5713d0bb690"
-    sha256 cellar: :any, catalina: "f93ad8f0dc2e0d1b353706f4fdad24decf01baee0bbabcfe094cc423c937b250"
-    sha256 cellar: :any, mojave:   "fd2b8d9c4c63a89592ae3a731c3fb2cb60fcd14537b2d820b7cfb68e68eb153e"
+    sha256 cellar: :any, arm64_monterey: "54add6475d94f9589dd598bb6014c81380fcdd556a66916a8a5af789662bc6cf"
+    sha256 cellar: :any, monterey:       "b48a624f85ee8192cc6cfa1c80eea30c4121bfe28127f3edee3d01ef8298d434"
+    sha256 cellar: :any, big_sur:        "5f700f360880331a9ddb13cd962bb45c89f7f8145ba1e005f832e5713d0bb690"
+    sha256 cellar: :any, catalina:       "f93ad8f0dc2e0d1b353706f4fdad24decf01baee0bbabcfe094cc423c937b250"
+    sha256 cellar: :any, mojave:         "fd2b8d9c4c63a89592ae3a731c3fb2cb60fcd14537b2d820b7cfb68e68eb153e"
   end
 
   # Check if this can be switched to `llvm` at next release
-  depends_on "llvm@11"
+  depends_on "llvm"
 
   def install
     system "make", "release"
