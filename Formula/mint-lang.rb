@@ -7,9 +7,10 @@ class MintLang < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.12.0"
-    sha256 cellar: :any, big_sur:  "af3717ba9660ea1c8dff4c98b57705e9d702ab906b925463d77400d26f7220ab"
-    sha256 cellar: :any, catalina: "8f26b0e13b6b966fdb41198a9c83e554ef7ca5d619ea0536dbcc785bdee82c82"
-    sha256 cellar: :any, mojave:   "0df2bf47978295190ee00539c4610e2f1265dc535b41091e3ea7094ff369ca48"
+    sha256 cellar: :any, arm64_monterey: "06eb4dde3d07027400cc1a655cef187a0700fafc7f4e608610c6e6ed314db1ee"
+    sha256 cellar: :any, big_sur:        "af3717ba9660ea1c8dff4c98b57705e9d702ab906b925463d77400d26f7220ab"
+    sha256 cellar: :any, catalina:       "8f26b0e13b6b966fdb41198a9c83e554ef7ca5d619ea0536dbcc785bdee82c82"
+    sha256 cellar: :any, mojave:         "0df2bf47978295190ee00539c4610e2f1265dc535b41091e3ea7094ff369ca48"
   end
   head do
     url "https://github.com/mint-lang/mint.git"
