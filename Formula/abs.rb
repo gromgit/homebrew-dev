@@ -15,6 +15,7 @@ class Abs < Formula
     sha256 cellar: :any_skip_relocation, monterey:       "d0751bb2d730d5973c93a43a2b31ed1f63c4519c9d6e1a62863832825eaede7b"
     sha256 cellar: :any_skip_relocation, big_sur:        "d0235d755a6417f76bc936fe822509d109833fa138c0d95640823d44a17b923f"
     sha256 cellar: :any_skip_relocation, catalina:       "87964f8fbecb37f5d6bc6dec37c00e51dc413d21f3488a5c942940cfaa35caf3"
+    sha256 cellar: :any_skip_relocation, mojave:         "274e14abec7d0aa2fc45582ecf7d77aeda8cce702c6fa60784d830b69aa9707a"
   end
 
   head do
