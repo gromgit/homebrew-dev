@@ -13,6 +13,7 @@ class Abs < Formula
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/abs-2.5.1"
     sha256 cellar: :any_skip_relocation, arm64_monterey: "4b0fea48ab080cc3baf6e9f9f1f21b4b0364eb16aada1b964dc0fd1a9d83b7a9"
     sha256 cellar: :any_skip_relocation, monterey:       "d0751bb2d730d5973c93a43a2b31ed1f63c4519c9d6e1a62863832825eaede7b"
+    sha256 cellar: :any_skip_relocation, big_sur:        "d0235d755a6417f76bc936fe822509d109833fa138c0d95640823d44a17b923f"
   end
 
   head do
