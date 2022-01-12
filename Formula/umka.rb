@@ -11,6 +11,7 @@ class Umka < Formula
     sha256 cellar: :any, monterey:       "6d3a847fd1d0661e8b7451889dce1b5c79383d2793c04422fe4fada9c81b5786"
     sha256 cellar: :any, big_sur:        "d36ef93c96040979b4b4d7d6d925615793bdec56fb9c6cb43425c8a4678da345"
     sha256 cellar: :any, catalina:       "166f3692ce8bf93546e3401c0e428094018aeaef0ed54616b8e77f5b093c4b61"
+    sha256 cellar: :any, mojave:         "8fde8002026436e3fadb5d801d4c6d9ddc87594e6eef476bb8c4f08345c80960"
   end
   head do
     url "https://github.com/gromgit/umka-lang.git"
