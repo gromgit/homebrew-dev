@@ -12,6 +12,7 @@ class Nuitka < Formula
     sha256 cellar: :any_skip_relocation, arm64_monterey: "66d753b62eb863c2f9c27b27a6e7b70faf243cffdf7f9abdbab3731dc6b820bd"
     sha256 cellar: :any_skip_relocation, monterey:       "086df646730f768eff4f60047c79265dda5c770deb7fcef481f12ff554b65f49"
     sha256 cellar: :any_skip_relocation, big_sur:        "5934527ba4f03fc2a1e063747529fcb41d9d50169d0bcb5f72dd6679a5d35afc"
+    sha256 cellar: :any_skip_relocation, catalina:       "ae1c784c08b0cc0fb6cd616e71a7253783f972d92f543181d95cf52131d7f3d7"
   end
 
   depends_on "llvm"
