@@ -1,16 +1,13 @@
 class MintLang < Formula
   desc "Programming language for single-page web applications"
   homepage "https://www.mint-lang.com/"
-  url "https://github.com/mint-lang/mint/archive/0.12.0.tar.gz"
-  sha256 "3ca2ab0435ce3fa537d6ba52c5ad8491d1fb4bc376b81fdc6f4fc9e741a71f4c"
+  url "https://github.com/mint-lang/mint/archive/0.15.1.tar.gz"
+  sha256 "e8dce6b3845944f4da1a6382fe79524bb89c59fcf961ab7af43e61ffd38f5f90"
   license "BSD-3-Clause"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.12.0"
-    sha256 cellar: :any, arm64_monterey: "06eb4dde3d07027400cc1a655cef187a0700fafc7f4e608610c6e6ed314db1ee"
-    sha256 cellar: :any, big_sur:        "af3717ba9660ea1c8dff4c98b57705e9d702ab906b925463d77400d26f7220ab"
-    sha256 cellar: :any, catalina:       "8f26b0e13b6b966fdb41198a9c83e554ef7ca5d619ea0536dbcc785bdee82c82"
-    sha256 cellar: :any, mojave:         "0df2bf47978295190ee00539c4610e2f1265dc535b41091e3ea7094ff369ca48"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.15.1"
+    sha256 cellar: :any, arm64_monterey: "1dcd253c81d91961c8c883f106207b844f96c751e5f0d2311f5531f6586747ff"
   end
   head do
     url "https://github.com/mint-lang/mint.git"
