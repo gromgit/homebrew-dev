@@ -11,6 +11,7 @@ class MintLang < Formula
     sha256 cellar: :any, monterey:       "1492b84fd9c4a29e870f2a451af8e23aaa04181dbe067738844bf18a85002e4b"
     sha256 cellar: :any, big_sur:        "8ebdf7165ff4924c3c49d305fe5864136068c9eec234dd49f76a7a7a61732eaa"
     sha256 cellar: :any, catalina:       "216cb541374d15874b236f0e502b0d8a160f38c4341ef28e85099a7ffd095dbf"
+    sha256 cellar: :any, mojave:         "1f8579b32a7cb09ec53eb4675eb56d14f8c6f5526b5d9e11d721247c33aa63d4"
   end
   head do
     url "https://github.com/mint-lang/mint.git"
