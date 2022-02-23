@@ -17,6 +17,7 @@ class OdinLatest < Formula
     sha256 cellar: :any, arm64_monterey: "776f733cc7774beb5eb0d88041cb475360f0ca1f170e11ffbd191340ebd56b9f"
     sha256 cellar: :any, monterey:       "926c5e7f040807802ee0e9ef786b5edd9d881fb35e07e2c4867927e521c4a690"
     sha256 cellar: :any, big_sur:        "db8749e1ebed7220a626e3a7a35d6fdc08acd0b50c663aa5a01adbe60bab0df7"
+    sha256 cellar: :any, catalina:       "3488b4f1c6dbf3ed4615942a22432c7c5f7d44d271203efb18114740043c94f9"
     sha256 cellar: :any, mojave:         "b14648a51228c1f59f73a4a00ee3ede4c3dd24fa2a1b37893355b3179c64f47b"
   end
 
