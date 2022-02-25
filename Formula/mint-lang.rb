@@ -8,6 +8,7 @@ class MintLang < Formula
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.15.3"
     sha256 cellar: :any, arm64_monterey: "41a0c5eab7b29a99757cb4c76d7a3423461fb31ba66a4bac8b9822dd72e6b74e"
+    sha256 cellar: :any, monterey:       "acb175d8c69023ac2ace38511c136ed8522d31e89d084856ef48137e0a5fc8e4"
   end
   head do
     url "https://github.com/mint-lang/mint.git"
