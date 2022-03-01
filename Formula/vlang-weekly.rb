@@ -14,6 +14,7 @@ class VlangWeekly < Formula
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2022.09"
     sha256 cellar: :any_skip_relocation, arm64_monterey: "1b2bae90df46bade8bb00ee93e97cbeefe180db7cfd0cbdd281d3857dabff9ee"
     sha256 cellar: :any_skip_relocation, monterey:       "dc55b83037a4a90fe6213fbee4a91cd1f8e39b263830a35a7242936918c3606e"
+    sha256 cellar: :any_skip_relocation, big_sur:        "cf07f0519ce5d5d419fd5c44dc6c287e0ac758c2ff4e1fc969747f71945aa547"
   end
 
   conflicts_with "vlang", because: "both install `v` binaries"
