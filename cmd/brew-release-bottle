@@ -84,6 +84,8 @@ for f in "$@"; do
     repodir=$(brew --repo "$tap")
     if [[ -s ${repodir}/.gromgit/repo ]]; then
       real_ghrepo=$(<"${repodir}/.gromgit/repo")
+    elif [[ -s ${repodir}/.settings/repo ]]; then
+      real_ghrepo=$(<"${repodir}/.settings/repo")
     else
       real_ghrepo=$ghrepo
     fi
