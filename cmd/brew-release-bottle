@@ -37,6 +37,9 @@ for cmd in jq gh; do
   fi
 done
 
+# Ref: https://github.com/Homebrew/brew/issues/13012#issuecomment-1073305666
+export HOMEBREW_BOTTLE_SUDO_PURGE=1
+
 tap_base=$(brew --repo homebrew/core); tap_base=${tap_base%/homebrew/homebrew-core}
 
 rb2formula() {
