@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/weekly.2022.13.tar.gz"
-  sha256 "5df66008b01de13d02da9f8f0ed47438e1ce01e82543738a33a7dcc65240aa37"
+  url "https://github.com/vlang/v/archive/weekly.2022.16.tar.gz"
+  sha256 "d6088e945a2d55f87263bf83ff422494d2f598f6c92f405a54307587a25befab"
   license "MIT"
 
   livecheck do
@@ -11,12 +11,11 @@ class VlangWeekly < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2022.13"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "72bf05434eba23a816aa03f96ed33146db8dea7105bbf4d1595d1124bdac5f1f"
-    sha256 cellar: :any_skip_relocation, monterey:       "d818c5a0beda22eb193dede6f50f461e6e9f7b99366e046be23d251813f38346"
-    sha256 cellar: :any_skip_relocation, big_sur:        "32fbf997ed765860ea9cec0dd5389ca4d20a9cc2ff9f55ca5aeca71c893b01de"
-    sha256 cellar: :any_skip_relocation, catalina:       "2d0756a222fde8fefd4e11281897496283b60d617a5c986654e92f3f0f98c0d8"
-    sha256 cellar: :any_skip_relocation, mojave:         "c68f1a4489b6fc0f3536bb1b2709466e6f815acca338e3a5531b8bcbc71ba6d0"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2022.16"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "3163158e5ac88266b4d38824ffcf4bc110a3d674304dae2baacb5ccc8980e8d0"
+    sha256 cellar: :any_skip_relocation, monterey:       "89fdf844339713877e253e9b589bb4fcbee108d64f915a84b9203359295933a9"
+    sha256 cellar: :any_skip_relocation, big_sur:        "f6a987793b99133ed4ec5dbcc23695fef832ca5723f5f04fbce8e632fca708f2"
+    sha256 cellar: :any_skip_relocation, catalina:       "e83af5e604e5d816c85e14354234e1fe0acfc1b1d528cce0d75abd5d2896c453"
   end
 
   conflicts_with "vlang", because: "both install `v` binaries"
