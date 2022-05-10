@@ -1,22 +1,44 @@
 #!/usr/bin/env bash
-#:`brew build-local` [options] *formula*...
+#:`brew build-local` [options] *formula*|*spec*...
 #:    Build/test/bottle *formula* for GitHub distribution
-#:    `-n | --dry-run` : Show the commands that would be run
+#:    `-i | --interactive` : Prompt for resolution on each failed formula
+#:    `-S | --stop`        : Tell `build-local` to stop after this formula
+#:    `-f | --force`       : Force building for all specified formulae
+#:    `-n | --dry-run`     : Show the commands that would be run
+#:    *spec* =
+#:      `@new`     : all new formulae
+#:      `@failed`  : all failed formulae from last run
+#:      `%`*formula* : all formulae that use *formula*
 
-# shellcheck source=/dev/null
+# shellcheck source=../lib/funcs.sh
 . "$(dirname "$0")/../lib/funcs.sh"
-need_progs brew git lsof
+need_progs brew git lsof timelimit
 
 shopt -s lastpipe
 
 repo=$(brew --repo homebrew/core)
+cfgdir=${repo}/.settings
 cache_dir=$(brew --cache)
+stop_file=/tmp/brew-build-local.stop
+failed_file=/tmp/brew-build-local.failed
+testbot_baseargs=(--fail-fast --only-formulae --only-json-tab --skip-online-checks --skip-dependents --local)
+default_build_cmd=(brew test-bot "${testbot_baseargs[@]}" --publish)
+export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
 
+# shellcheck disable=SC2120  # clean_cache takes optional args
 clean_cache() {
+  local force
+  while true; do
+    case "$1" in
+      -f|--force) force=1;;
+      *) break;;
+    esac
+    shift
+  done
   df -k "$cache_dir"/ | while read -r fs _ _ _ cap _; do
     [[ $fs == /* ]] || continue
-    # Clean up if cache partition is over 70% used
-    [[ ${cap%\%} -gt 70 || $1 == "-f" ]] && {
+    # Clean up if cache partition is over 50% used
+    [[ ${cap%\%} -gt 50 || -n "$force" ]] && {
       info "Cleaning up cache dir"
       cmd chmod -R u+w "$cache_dir"/
       cmd rm -fr "$cache_dir"/*
@@ -24,20 +46,59 @@ clean_cache() {
   done
 }
 
-my_os=$(os_name)
+# formula_path <formula>
+formula_path() {
+  local fpath
+  if [[ -e Aliases/$1 ]]; then
+    # Check for alias
+    fpath=$(realpath --relative-base="$repo" -e Aliases/"$1" 2>/dev/null)
+  else
+    fpath=Formula/${1}.rb
+  fi
+  if [[ -s $fpath ]]; then
+    echo "$fpath"
+  else
+    error "formula_path: $1 not found"
+    return 1
+  fi
+}
+
+# flag_with_reason <formula>
+flag_with_reason() {
+  local reason
+  grep -E "^$1"$'\t' "${cfgdir}/issues" | read -r _ reason
+  read -erp "Reason: " -i "$reason" reason
+  {
+    grep -Ev "^$1"$'\t' "${cfgdir}/issues"
+    if [[ -n $reason ]]; then
+      echo "$1"$'\t'"$reason"
+    fi
+  } > /tmp/brew-build-local.issues.tmp && mv /tmp/brew-build-local.issues.tmp "${cfgdir}/issues"
+}
+
+while true; do
+  case "$1" in
+    -i|--interactive) interactive=1;;
+    -S|--stop) info "Signalling stop"; touch "$stop_file"; exit 0;;
+    -n|--dry-run) dry_run=1;; # cmd() { info "DRY-RUN: $*" ; } ;;
+    -f|--force) force_run=1;;
+    *) break;;
+  esac
+  shift
+done
+
 if [[ $(uname -s) == "Darwin" ]]; then
-  os_blocker=":linux"
+  # shellcheck disable=SC2154  # $my_os defined in funcs.sh
   build_dir=~/Library/Caches/build-core-${my_os}
 else
-  os_blocker=":macos"
   build_dir=$(dirname "$(brew --cache)")/build-core-${my_os}
 fi
 mkdir -p "$build_dir"
 
-if [[ -s ${repo}/.settings/repo ]]; then
+if [[ -s ${cfgdir}/repo ]]; then
   base_url=https://github.com/$(<"${repo}"/.settings/repo)
 else
-  fatal "${repo}/.settings/repo not found"
+  fatal "${cfgdir}/repo not found"
 fi
 
 info "START: $(basename "$0")"
@@ -47,64 +108,129 @@ cd "$repo" || fatal "Can't cd into $repo"
 # shellcheck disable=SC1091 # sourcing a config file
 [[ -s .settings/brewrc ]] && . .settings/brewrc
 
-while true; do
-  case "$1" in
-    -n|--dry-run) cmd() { info "DRY-RUN: $*" ; } ;;
-    *) break;;
-  esac
-  shift
-done
-
+shortlist=()
 if [[ $# -eq 0 ]]; then
   # Automatically select all non-bottled formulae
-  work=()
-  grep -L "bottle do" Formula/*.rb | while read -r i; do
-    # Now drop everything that can't be built
-    # shellcheck disable=SC2154
-    for drop in "${block_depends[@]}"; do
-      if grep -Eq "depends_on $drop" "$i"; then
-        info "Ignoring $(basename "$i" .rb) because $drop"
-        continue 2
-      fi
-    done
-    work+=("$(basename "$i" .rb)")
+  list_rebottling Formula/*.rb
+else
+  case "$1" in
+    @new)
+      git ls-files --others --exclude-standard Formula
+    ;;
+    @failed)
+      sed 's!^.*$!Formula/&.rb!' < "$failed_file"
+    ;;
+    %*)
+      # select everything that uses this formula
+      brew uses --recursive --formula --include-build --include-test "${1#%}" | grep -v "/" | sed 's!^.*$!Formula/&.rb!'
+    ;;
+    *)
+      for i in "$@"; do
+        # Expand wildcards
+        eval /bin/ls Formula/"$i".rb 2>/dev/null
+      done
+    ;;
+  esac
+fi | while read -r fpath; do
+  name=$(basename "$fpath" .rb)
+  # Only select stuff that can be built (and isn't already built)
+  if [[ -n "$force_run" ]]; then
+    reset_bottle_block "$fpath"
+    shortlist+=("$name")
+  elif needs_rebottling "$fpath"; then
+    if can_build "$fpath"; then
+      reset_bottle_block "$fpath"
+      shortlist+=("$name")
+    else
+      cmd rm -fr "${build_dir:?}/$name"
+    fi
+  fi
+done
+
+work=()
+# Sift through each specified formula and its dependencies
+for f in "${shortlist[@]}"; do
+  info "Checking $f"
+  can_deps=()
+  cant_deps=()
+  for f2 in $(brew deps -n --include-build --include-test "$f"); do
+    fpath=$(formula_path "$f2")
+    # If it's already built, great!
+    if ! needs_rebottling "$fpath"; then
+      info "Skipping $f2, already built"
+      continue
+    fi
+    if can_build "$fpath"; then
+      can_deps+=("$f2")
+    else
+      cant_deps+=("$f2")
+    fi
   done
-  set -- "${work[@]}"
-fi
+  if [[ ${#cant_deps[@]} -gt 0 ]]; then
+    warn "Skipping $f because the following dependencies can't be built: ${cant_deps[*]}"
+  else
+    append_unique work "${can_deps[@]}" "$f"
+  fi
+done
+
+[[ ${#work[@]} -eq 0 ]] && fatal "No formulae to build"
 
 # Sort by dependency tree
 # shellcheck disable=SC2046 # we WANT word-splitting here
-set -- $(brew deps -n --include-build --include-test --union "$@") "$@"
+#set -- $(brew deps -n --include-build --include-test --union "${work[@]}") "${work[@]}"
+set -- "${work[@]}"
+info "Building: $*"
+[[ -n "$dry_run" ]] && exit 0
 
+passed=(); failed=()
 for f in "$@"; do
+  [[ -e $stop_file ]] && {
+    warn "Stopping by request"
+    rm -f "$stop_file"
+    break
+  }
+  grep -E "^${f%@*}"$'\t' "${cfgdir}/timeout" | read -r _ timeout
+  f=${f%%/}
   [[ -e Aliases/$f ]] && {
     f2=$(basename "$(realpath "Aliases/$f")" .rb)
     info "Alias($f) -> $f2"
     f=f2
   }
-  formula=Formula/${f}.rb
+  formula=$(formula_path "$f")
   installed=""
+  build_cmd=("${default_build_cmd[@]}")
   [[ -d ${HOMEBREW_CELLAR}/${f} ]] && installed=yes
-  if grep -q "depends_on $os_blocker" "$formula"; then
-    warn "Skipping $f - depends_on $os_blocker"
-    continue
-  fi
-  grep 'disable!' "$formula" | while read -r _ f1 f2 _; do
-    if [[ $f1 == "date:" && ${f2//[\",]} < $(date +%Y-%m-d) ]]; then
-      warn "Skipping $f - disabled"
-      continue 2
-    fi
-  done
-  if ! grep -q "bottle do" "$formula"; then
-    (
+  can_build "$formula" || continue
+  while true; do
+    if (
       mkdir -p "$build_dir/$f"
       cd "$build_dir/$f" || fatal "Can't cd into $(dirname "$0")"
-      cmd brew test-bot --only-formulae --publish --root-url="${base_url}/releases/download/${f}" "$f"
-    )
-    cmd brew upload-local &&
-    rm -f "${HOMEBREW_CELLAR}"/*.tar &&
-    cmd git push
-  fi
+      cmd timelimit -t "${timeout:-3600}" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
+    ); then
+      passed+=("$f")
+      [[ ${#failed[@]} -gt 0 && ${failed[-1]} == "$f" ]] && failed=("${a[@]::${#a[@]}-1}")
+      break
+    else
+      build_cmd=("${default_build_cmd[@]}")
+      if [[ -n $interactive ]]; then
+        # Ask user how to proceed
+        read -rp "${Tty_red}>>>${Tty_reset} (C)ontinue, (r)etry, (e)dit formula and retry, (a)lt build method, (s)hell, (f)lag with reason: "
+        case "${REPLY,,}" in
+          r[1-9][0-9]*) timeout=${REPLY:1} ;&
+          r*) continue;;
+          e*) brew edit "$f"; while ! brew style --fix "$f"; do brew edit "$f"; done; continue;;
+          a[1-9][0-9]*) timeout=${REPLY:1} ;&
+          a*) build_cmd=(brew release-bottle -w); continue;;
+          s*) ( cd "$build_dir/$f" ; "$SHELL" -i ) || break;;
+          f*) flag_with_reason "$f"; break;;
+          *) : ;;
+        esac
+      fi
+      [[ ${#failed[@]} -gt 0 && ${failed[-1]} == "$f" ]] || failed+=("$f")
+      break
+    fi
+  done
+  cmd brew upload-local
   # Clean up manually afterwards
   if [[ -z $installed && -d $HOMEBREW_CELLAR/$f ]]; then
     cmd brew rm "$f" && cmd brew autoremove
@@ -113,10 +239,21 @@ for f in "$@"; do
 done
 
 # Do a final cache cleanup
-clean_cache -f
+clean_cache
 
 # And see what's still holding on to the lock (if exists)
 sleep 5
 [[ -f /tmp/homebrew-cron.lock ]] && cmd lsof /tmp/homebrew-cron.lock
+
+echo "${Tty_green}Passed:${Tty_reset} ${passed[*]}"
+echo "${Tty_red}Failed:${Tty_reset} ${failed[*]}"
+echo "${failed[*]}" | tr ' ' \\012 > "$failed_file"
+[[ -s ${cfgdir}/issues ]] && grep -E "^(${failed[*]// /|})	" "${cfgdir}/issues"
+
+# See if user wants to go another (interactive) round with the failed formulae
+if [[ -z "$interactive" && ${#failed[@]} -gt 0 ]]; then
+  read -rp "${Tty_red}>>>${Tty_reset} Try failed formulae again in interactive mode? (y|N) "
+  [[ ${REPLY,,} == y* ]] && exec "$0" -i "${failed[@]}"
+fi
 
 info "DONE: $(basename "$0")"

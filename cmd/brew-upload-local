@@ -2,9 +2,9 @@
 #:`brew upload-local`
 #:    Upload built bottles & merge JSON into formulae
 
-# shellcheck source=/dev/null
+# shellcheck source=../lib/funcs.sh
 . "$(dirname "$0")/../lib/funcs.sh"
-need_progs brew rsync gh jq
+need_progs brew rsync gh jq timelimit
 
 my_os=$(os_name)
 core=$(brew --repo homebrew/core)
@@ -49,8 +49,13 @@ for j in */*.json; do
     cmd git -C "$core" add "$tap_git_path" &&
     cmd brew bottle --merge --write "$j" &&
     cmd rsync -avm "$d"/ .done/"$d"/ && 
-    cmd rm -fr "$d" &&
-    cmd git -C "$core" add "$tap_git_path" &&
-    cmd git -C "$core" commit -m "${formula}: update ${pkg_version} bottle" "$tap_git_path"
+    cmd rm -fr "$d" # &&
+    # cmd git -C "$core" add "$tap_git_path" &&
+    # cmd git -C "$core" commit -m "${formula}: update ${pkg_version} bottle" "$tap_git_path"
   done
 done
+
+info "Cleaning up .done dir"
+find .done -type f -mtime +2 -exec rm -fv {} +
+
+cmd timelimit -t 300 -T 30 git -C "$core" push

@@ -2,6 +2,7 @@
 #:`brew update-local`
 #:    Update local core repo against reference
 
+# shellcheck source=../lib/funcs.sh
 . "$(dirname "$0")/../lib/funcs.sh"
 need_progs brew rsync gh
 if [[ $(uname -s) == "Darwin" ]]; then
@@ -10,7 +11,6 @@ else  # Linux
   need_progs getconf
 fi
 
-my_os=$(os_name)
 repo=$(brew --repo homebrew/core)
 cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
 base=${repo##*/}
@@ -21,12 +21,16 @@ info "START: $(basename "$0")"
 [[ -d $real ]] || {
   mv "$base" "$real" || fatal "No '$base' and no '$real', can't proceed."
 }
-[[ -d $base ]] || {
+if [[ -d $base ]]; then
+  info "Updating Homebrew"
+  brew update || fatal "brew update failed"
+else
   info "Creating new Homebrew core repo"
   remote_user=${HOMEBREW_GITHUB_UPSTREAM}
   while [[ -z "$remote_user" ]]; do
     read -rp "Remote user: " remote_user
   done
+  # shellcheck disable=SC2154  # $my_os defined in funcs.sh
   remote_repo=${remote_user,,}/homebrew-core-${my_os}
   base_url=https://github.com/${remote_repo}
   cmd brew tap-new --github-packages -d -v homebrew/core
@@ -38,7 +42,7 @@ info "START: $(basename "$0")"
   cmd git -C "$repo" add .
   cmd git -C "$repo" commit -m "new tap repo"
   cmd git -C "$repo" push --all --set-upstream origin
-}
+fi
 
 if [[ -s ${repo}/.settings/repo ]]; then
   base_url=https://github.com/$(<"${repo}"/.settings/repo)
@@ -71,35 +75,43 @@ cmd rsync -avum "${rsync_opts[@]}" "$real"/ "$base"/
 
 (
   cd "$base" || fatal "update: Can't cd to $base"
-  find Formula -type f -print | while read -r f; do
+  if [[ -s $HOMEBREW_TEMP/rsync-includes ]]; then
+    grep Formula/ "$HOMEBREW_TEMP"/rsync-includes
+  else
+    find Formula -type f -name \*.rb -print
+  fi | while read -r f; do
     # Don't touch sticky formulae
     [[ -k $f ]] && continue
     fbase=$(basename "$f" .rb)
-    # Apply patch if available
-    if [[ -s patches/${fbase}.patch ]] && ! git diff --exit-code "$f" ; then
-      info "Patching $f"
-      patch -p1 < patches/"${fbase}".patch
-    fi
-    if grep -Eq "sha256 .*(${my_os}|all):" "$f"; then
-      # This formula doesn't need rebuilding
-      cmd git add "$f"
+    if cant_build=$(can_build "$f"); then
+      # Apply patch if available
+      if [[ -s patches/${fbase}.patch ]] && ! git diff --exit-code "$f" ; then
+        info "Patching $f"
+        patch -p1 < patches/"${fbase}".patch
+      fi
+      if ! needs_rebottling "$f"; then
+        # This formula doesn't need rebuilding
+        cmd git add "$f"
+        cmd git commit -m "${fbase}: no rebuilding required" "$f"
+      else
+        # Reset this formula's bottle block
+        reset_bottle_block "$f"
+      fi
     else
-      # Strip out irrelevant bottle block
-      info "Stripping $f"
-      sed '/bottle do/,/end/d' < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
+      cmd git add "$f"
+      cmd git commit -m "${fbase}: ${cant_build}" "$f"
     fi
   done
-  cmd git commit -m "As-is formulae $(date +%Y%m%d.%H%M%S)"
 )
 
 # Do a Big-Bang fix at the end
-cmd brew style --fix homebrew/core || fatal "brew style failed"
+cmd brew style --fix homebrew/core # || fatal "brew style failed"
 
 (
   cd "$base" || fatal "update: Can't cd to $base"
   # Automatically deal with deleted files (skipping the sticky ones)
   find ./* -perm ++t -prune -o \! -type d | while read -r f; do
-    if [[ ! -e ../"$real/$f" && ! -k "$f" ]]; then
+    if [[ ! -e ../"$real/$f" && ! -k "$f" && "$f" != *.orig ]]; then
       warn "Removing deleted file $f"
       cmd git rm -fr "$f"
       if [[ $f == ./Formula/* ]]; then
@@ -109,10 +121,7 @@ cmd brew style --fix homebrew/core || fatal "brew style failed"
           cmd gh release delete "$fname" -R "$base_ghrepo" -y
         fi
       fi
-      cmd git add "$f"
     fi
-    # Add non-formulae automatically
-    [[ $f == ./Formula/* ]] || cmd git add "$f"
   done
   # Update the base repo
   cmd git commit -m "Updates from $real $(date +%Y%m%d.%H%M%S)"
