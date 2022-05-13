@@ -1,9 +1,9 @@
 class OdinLatest < Formula
   desc "Programming language with focus on simplicity, performance and modern systems"
   homepage "https://odin-lang.org/"
-  url "https://github.com/odin-lang/Odin/archive/dev-2022-04.tar.gz"
-  version "dev-2022-04"
-  sha256 "42983d411902e837792f3cf4c60871da7be67a0b8c23d92a31ac6a069a8fc5c3"
+  url "https://github.com/odin-lang/Odin/archive/dev-2022-05.tar.gz"
+  version "dev-2022-05"
+  sha256 "44d178c74f8e5f1b0fbf6c3d2a3e85ec56a20f64bc17bbd46e1ea8da1e77479c"
   license "BSD-2-Clause"
   head "https://github.com/odin-lang/Odin.git"
 
@@ -13,8 +13,8 @@ class OdinLatest < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-04"
-    sha256 cellar: :any, arm64_monterey: "6c29be30ea39b6c2e1648c6b536b7bdcfdc1d6a9912cabeb04261e0c6eeb5e45"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-05"
+    sha256 cellar: :any, arm64_monterey: "1c0d2642928a4d1bfa9367949867a336bbe8d415b90790c9c16795a94a327d41"
   end
 
   # Check if this can be switched to `llvm` at next release
@@ -43,7 +43,7 @@ class OdinLatest < Formula
         fmt.println("Hellope!");
       }
     EOS
-    system "#{bin}/odin", "build", "hellope.odin"
+    system "#{bin}/odin", "build", "hellope.odin", "-file", "-out:hellope"
     assert_equal "Hellope!\n", `./hellope`
   end
 end
