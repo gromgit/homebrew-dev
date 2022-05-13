@@ -13,6 +13,7 @@ class VlangWeekly < Formula
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2022.19"
     sha256 cellar: :any_skip_relocation, arm64_monterey: "366000c76c1ca6ced5d7fee94bc661a2dacbf70b852b99922e4d18cb6b8008b6"
+    sha256 cellar: :any_skip_relocation, mojave:         "4ff92f25b825773bd3e35814e3c890d6d9982f1f8c6d7c556fc685b6f01a660c"
   end
 
   conflicts_with "vlang", because: "both install `v` binaries"
