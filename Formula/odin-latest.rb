@@ -21,6 +21,11 @@ class OdinLatest < Formula
 
   # Check if this can be switched to `llvm` at next release
   depends_on "llvm"
+  # Build failure on macOS 10.15 due to `__ulock_wait2` usage.
+  # Issue ref: https://github.com/odin-lang/Odin/issues/1773
+  depends_on macos: :big_sur
+ 
+  fails_with gcc: "5" # LLVM is built with GCC
 
   def install
     # Keep version number consistent and reproducible for tagged releases.
