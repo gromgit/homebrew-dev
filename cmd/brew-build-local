@@ -23,6 +23,7 @@ stop_file=/tmp/brew-build-local.stop
 failed_file=/tmp/brew-build-local.failed
 testbot_baseargs=(--fail-fast --only-formulae --only-json-tab --skip-online-checks --skip-dependents --local)
 default_build_cmd=(brew test-bot "${testbot_baseargs[@]}" --publish)
+default_timeout=${default_timeout:-10800}
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
 
 # shellcheck disable=SC2120  # clean_cache takes optional args
@@ -205,7 +206,7 @@ for f in "$@"; do
     if (
       mkdir -p "$build_dir/$f"
       cd "$build_dir/$f" || fatal "Can't cd into $(dirname "$0")"
-      cmd timelimit -t "${timeout:-3600}" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
+      cmd timelimit -t "${timeout:-"${default_timeout}"}" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
     ); then
       passed+=("$f")
       [[ ${#failed[@]} -gt 0 && ${failed[-1]} == "$f" ]] && failed=("${a[@]::${#a[@]}-1}")
