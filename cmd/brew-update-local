@@ -110,6 +110,12 @@ cmd brew style --fix homebrew/core # || fatal "brew style failed"
 
 (
   cd "$base" || fatal "update: Can't cd to $base"
+  # Add metadata changes (except Aliases and Formula)
+  for f in ./*; do
+    if [[ $f != ./Aliases && $f != ./Formula ]]; then
+      git add "$f"
+    fi
+  done
   # Automatically deal with deleted files (skipping the sticky ones)
   find ./* -perm ++t -prune -o \! -type d | while read -r f; do
     if [[ ! -e ../"$real/$f" && ! -k "$f" && "$f" != *.orig ]]; then
