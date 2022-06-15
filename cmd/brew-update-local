@@ -24,6 +24,7 @@ info "START: $(basename "$0")"
 if [[ -d $base ]]; then
   info "Updating Homebrew"
   brew update || fatal "brew update failed"
+  git -C "$base" pull
 else
   info "Creating new Homebrew core repo"
   remote_user=${HOMEBREW_GITHUB_UPSTREAM}
