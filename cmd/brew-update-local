@@ -136,6 +136,6 @@ cmd brew style --fix homebrew/core # || fatal "brew style failed"
 )
 
 # Record our last commit
-git -C "$real" log --pretty=format:%H HEAD | head -1 > "$base/.settings/last_commit"
+cmd git -C "$real" log --pretty=format:%H HEAD | head -1 | tee "$base/.settings/last_commit"
 
 info "DONE: $(basename "$0")"
