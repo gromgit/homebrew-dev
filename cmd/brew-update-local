@@ -34,7 +34,7 @@ else
   # shellcheck disable=SC2154  # $my_os defined in funcs.sh
   remote_repo=${remote_user,,}/homebrew-core-${my_os}
   base_url=https://github.com/${remote_repo}
-  cmd brew tap-new --github-packages -d -v homebrew/core
+  cmd brew tap-new --github-packages --branch=master -d -v homebrew/core
   cmd git -C "$repo" remote add origin "$base_url"
   cmd gh repo create "$base_url" --public -y
   mkdir -p "$repo/.settings"
