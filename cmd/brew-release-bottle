@@ -100,7 +100,7 @@ for f in "$@"; do
 
     # Bump the version if needed
     if [[ -n $new_version ]]; then
-      cmd brew bump-formula-pr --write-only --version "$new_version" "$f"
+      cmd brew bump-formula-pr --force --write-only --version "$new_version" "$f"
     fi
 
     # Clean out any existing installation
