@@ -159,29 +159,27 @@ max_xcode_ver() {
 # os_name: Print Homebrew name of OS
 # USAGE: os_name
 os_name() {
-  if [[ $(uname -s) == "Darwin" ]]; then
-    case "$(sw_vers -productVersion)" in
-      12.*) echo "monterey";;
-      11.*) echo "big_sur";;
-      10.15.*) echo "catalina";;
-      10.14.*) echo "mojave";;
-      10.13.*) echo "high_sierra";;
-      10.12.*) echo "sierra";;
-      10.11.*) echo "el_capitan";;
-      10.10.*) echo "yosemite";;
-      10.9.*) echo "mavericks";;
-      10.8.*) echo "mountain_lion";;
-      10.7.*) echo "lion";;
-      10.6.*) echo "snow_leopard";;
-      *) echo "unknown";;
-    esac
-  else  # Linux
-    if [[ $(uname -m) == "aarch64" ]]; then
-      echo "aarch64_linux"
-    else
-      fatal "Homebrew only works on 64-bit Linux"
-    fi
-  fi
+  case "$(uname -s)" in
+    Darwin)
+      case "$(sw_vers -productVersion)" in
+        13.*) echo "ventura";;
+        12.*) echo "monterey";;
+        11.*) echo "big_sur";;
+        10.15.*) echo "catalina";;
+        10.14.*) echo "mojave";;
+        10.13.*) echo "high_sierra";;
+        10.12.*) echo "sierra";;
+        10.11.*) echo "el_capitan";;
+        *) fatal "Your macOS is too old to support Homebrew"
+      esac
+    ;;
+    Linux)
+      echo "$(uname -m)_linux"
+    ;;
+    *)
+      fatal "Homebrew only supported on macOS and Linux"
+    ;;
+  esac
 }
 
 my_os=$(os_name)
