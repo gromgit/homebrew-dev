@@ -25,7 +25,8 @@ testbot_baseargs=(--fail-fast --only-formulae --only-json-tab --skip-online-chec
 default_build_cmd=(brew test-bot "${testbot_baseargs[@]}" --publish)
 default_timeout=${default_timeout:-10800}
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
-[[ -d ${repo}/.tools/.bin ]] && PATH=${repo}/.tools/.bin:$PATH
+# .tools/bin should contain ready tools like `gh` and `timelimit`
+[[ -d ${repo}/.tools/bin ]] && PATH=${repo}/.tools/bin:$PATH
 
 # shellcheck disable=SC2120  # clean_cache takes optional args
 clean_cache() {
