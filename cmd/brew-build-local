@@ -207,7 +207,15 @@ for f in "$@"; do
     if (
       mkdir -p "$build_dir/$f"
       cd "$build_dir/$f" || fatal "Can't cd into $(dirname "$0")"
-      cmd timelimit -t "${timeout:-"${default_timeout}"}" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
+      for timeout in 21600 86400; do
+        cmd timelimit -t "${timeout:-"${default_timeout}"}" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
+        rtn=$?
+        if [[ $rtn -lt 128 ]]; then
+          # Not a timeout
+          exit "$rtn"
+        fi
+      done
+      exit "$rtn"
     ); then
       passed+=("$f")
       [[ ${#failed[@]} -gt 0 && ${failed[-1]} == "$f" ]] && failed=("${a[@]::${#a[@]}-1}")
