@@ -23,7 +23,8 @@ stop_file=/tmp/brew-build-local.stop
 failed_file=/tmp/brew-build-local.failed
 testbot_baseargs=(--fail-fast --only-formulae --only-json-tab --skip-online-checks --skip-dependents --local)
 default_build_cmd=(brew test-bot "${testbot_baseargs[@]}" --publish)
-default_timeout=${default_timeout:-10800}
+default_timeouts=(21600 86400)
+default_kill_timeout=${default_kill_timeout:-1800}
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
 # .tools/bin should contain ready tools like `gh` and `timelimit`
 [[ -d ${repo}/.tools/bin ]] && PATH=${repo}/.tools/bin:$PATH
@@ -208,8 +209,8 @@ for f in "$@"; do
     if (
       mkdir -p "$build_dir/$f"
       cd "$build_dir/$f" || fatal "Can't cd into $(dirname "$0")"
-      for timeout in 21600 86400; do
-        cmd timelimit -t "${timeout:-"${default_timeout}"}" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
+      for timeout in "${default_timeouts[@]}"; do
+        cmd timelimit -t "$timeout" -T "$default_kill_timeout" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
         rtn=$?
         if [[ $rtn -lt 128 ]]; then
           # Not a timeout
