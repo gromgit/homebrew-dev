@@ -237,7 +237,7 @@ can_build() {
 
     ;;
     Linux)
-      if grep -q "depends_on macos" "$1"; then
+      if grep -q "depends_on :macos" "$1"; then
         warn "Skipping $name because depends_on :macos"
         b_cache+=(["$name"]=1); return 1
       fi
