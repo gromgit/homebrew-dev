@@ -15,6 +15,7 @@ repo=$(brew --repo homebrew/core)
 cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
 base=${repo##*/}
 real=homebrew-realcore
+err_log=/tmp/"$(basename "$0")".log
 
 info "START: $(basename "$0")"
 
@@ -24,6 +25,7 @@ info "START: $(basename "$0")"
 if [[ -d $base ]]; then
   info "Updating Homebrew"
   brew update || fatal "brew update failed"
+  git -C "$base" push |& tee "$err_log" || fatal "Please resolve repo issues before running again (log: $err_log)"
   git -C "$base" pull
 else
   info "Creating new Homebrew core repo"
@@ -131,6 +133,7 @@ cmd brew style --fix homebrew/core # || fatal "brew style failed"
     fi
   done
   # Update the base repo
+  cmd git pull
   cmd git commit -m "Updates from $real $(date +%Y%m%d.%H%M%S)"
   cmd git push
 )
