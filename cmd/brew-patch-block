@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#:`brew patch-block` *url*...
+#:    Generate patch blocks for each *url*
+
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs curl sha256sum sed
+
+for u in "$@"; do
+  cat <<EOS
+  patch do
+    url "${u}"
+    sha256 "$(curl -sL "$u" | sha256sum | sed 's/ .*//')"
+  end
+
+EOS
+done
