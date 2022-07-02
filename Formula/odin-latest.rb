@@ -1,9 +1,9 @@
 class OdinLatest < Formula
   desc "Programming language with focus on simplicity, performance and modern systems"
   homepage "https://odin-lang.org/"
-  url "https://github.com/odin-lang/Odin/archive/dev-2022-06.tar.gz"
-  version "dev-2022-06"
-  sha256 "6be176d1a69c9685be93ac0dcbf96da12c7896b890360cecc907700c9130ed45"
+  url "https://github.com/odin-lang/Odin/archive/dev-2022-07.tar.gz"
+  version "dev-2022-07"
+  sha256 "ff04664b5bc478e6a270e2ea08f162d54f585345793b8f63a1f8c625c6457671"
   license "BSD-2-Clause"
   head "https://github.com/odin-lang/Odin.git", branch: "master"
 
@@ -13,10 +13,8 @@ class OdinLatest < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-06"
-    sha256 cellar: :any, arm64_monterey: "8d68eb324882150b6fc749992e10d757f7706124cfc7ffe5efbefa16dbad28e3"
-    sha256 cellar: :any, monterey:       "7f4b6ae5a094825b0f59f82c17142dbeb5fd6ceb766b666fb2409ad0f5d39209"
-    sha256 cellar: :any, big_sur:        "7252e6dd01a500505fe49f3520120f2ce6c0b3c418282f7f710a8b1f4eb61f26"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-07"
+    sha256 cellar: :any, arm64_monterey: "324122b6879bd6074425957af4046c31219e399a2db5b185b165f3824b6a29b4"
   end
 
   # Check if this can be switched to `llvm` at next release
@@ -24,7 +22,7 @@ class OdinLatest < Formula
   # Build failure on macOS 10.15 due to `__ulock_wait2` usage.
   # Issue ref: https://github.com/odin-lang/Odin/issues/1773
   depends_on macos: :big_sur
- 
+
   fails_with gcc: "5" # LLVM is built with GCC
 
   def install
