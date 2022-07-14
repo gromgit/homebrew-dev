@@ -3,21 +3,17 @@ class Nuitka < Formula
 
   desc "Python compiler written in Python"
   homepage "https://nuitka.net"
-  url "https://github.com/Nuitka/Nuitka/archive/refs/tags/0.7.3.tar.gz"
-  sha256 "7e223dc1fa0f87c6f891fa7063b1746d1b8202422606750e49786ad2eae4f8b8"
+  url "https://github.com/Nuitka/Nuitka/archive/refs/tags/0.9.4.tar.gz"
+  sha256 "7373ddae5d18fd84e148e280fa9265d83d18157d49ad5ec76a07af9185df7228"
   license "Apache-2.0"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-0.7.3"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "428ecf3e986b230949324c21befe61b041081954d8792b642c618d9f3cb69b94"
-    sha256 cellar: :any_skip_relocation, monterey:       "a6905db6066b25463f3a0f87c708896cd91a4ca02a9177e5083480956fa00eb4"
-    sha256 cellar: :any_skip_relocation, big_sur:        "39b8de69b7f57648a6393bda83c76cb54670242850947b9307e953c420c46937"
-    sha256 cellar: :any_skip_relocation, catalina:       "a57863348ad8743188263d5290aaa3a4d69a7008bc96650baf979c154eb28e03"
-    sha256 cellar: :any_skip_relocation, mojave:         "01fbc024f12519639fc92c8325491a59600617e0578b4f70afefb2539cdcc2f0"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-0.9.4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "bf1f7abd2af0dbe4941862e873cbfd67125994904d7b8c67b71a74a8f27d7dea"
   end
 
   depends_on "llvm"
-  depends_on "python"
+  depends_on "python@3.9"
 
   def install
     virtualenv_install_with_resources
@@ -34,7 +30,7 @@ class Nuitka < Formula
       if __name__ == "__main__":
           main()
     EOS
-    assert_match "Talk Hello World", shell_output("python test.py")
+    assert_match "Talk Hello World", shell_output("python3 test.py")
     system "#{bin}/nuitka3", "-o", "test", "test.py"
     assert_match "Talk Hello World", shell_output("./test")
     ohai "test = #{File.size("test")} bytes"
