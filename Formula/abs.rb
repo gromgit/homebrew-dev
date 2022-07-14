@@ -16,6 +16,7 @@ class Abs < Formula
     sha256 cellar: :any_skip_relocation, big_sur:        "9d425af534ab21dcdf0af7d57b56b9ced6f5714fb3fe9c49dfc9406efb4d192b"
     sha256 cellar: :any_skip_relocation, catalina:       "4c1aeb8ca05a66883aa25a337afe22ca3a291f46acee4aa18540c4fceb1dac42"
     sha256 cellar: :any_skip_relocation, mojave:         "68de36d2850b8854be7f2efa01f14846f950009327bcfad6879590c25f970572"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "2907112d7800b6cb79a691831f29c81de6e7b51f41555fff644d816be8e10eaa"
   end
 
   head do
