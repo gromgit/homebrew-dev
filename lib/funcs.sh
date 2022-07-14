@@ -353,3 +353,9 @@ append_unique() {
     a+=("$i")
   done
 }
+
+for myvar in GITHUB_API_TOKEN GITHUB_PACKAGES_TOKEN GITHUB_PACKAGES_USER GITHUB_UPSTREAM GIT_EMAIL GIT_NAME GH_TOKEN; do
+  mynewvar=HOMEBREW_${myvar}
+  [[ -n ${!mynewvar} ]] && echo export ${myvar}=${!mynewvar}
+done
+unset myvar mynewvar
