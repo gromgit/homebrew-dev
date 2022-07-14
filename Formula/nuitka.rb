@@ -10,6 +10,7 @@ class Nuitka < Formula
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-0.9.4"
     sha256 cellar: :any_skip_relocation, arm64_monterey: "bf1f7abd2af0dbe4941862e873cbfd67125994904d7b8c67b71a74a8f27d7dea"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "253b3f376304916e0ea6abd3726ed133b5498b4dcc01b876a6f3d661413e45ed"
   end
 
   depends_on "llvm"
