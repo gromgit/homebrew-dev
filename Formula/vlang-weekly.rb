@@ -12,10 +12,11 @@ class VlangWeekly < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2022.28"
-    sha256 cellar: :any_skip_relocation, monterey: "17284fa95c15bb17de8c7a4ce44481e378b6928a4609ba3526af8f0363ce16ce"
-    sha256 cellar: :any_skip_relocation, big_sur:  "2b5f4ee8e1f8c860941d3c6ce503ee768e2d248d1dadfc65c8925161cd75a48d"
-    sha256 cellar: :any_skip_relocation, catalina: "581c59ab71974c77a8eae000b800b879fd0bc7e91f4283b4380bb3faad7ef934"
-    sha256 cellar: :any_skip_relocation, mojave:   "0d272f85d2990a3c2eebd08ff26cc0e01209b28af887f758405f7d3542032c1d"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "5e91ac02897e559000d27807114681daa201193010c2acea3ebbc657e5947f66"
+    sha256 cellar: :any_skip_relocation, monterey:       "17284fa95c15bb17de8c7a4ce44481e378b6928a4609ba3526af8f0363ce16ce"
+    sha256 cellar: :any_skip_relocation, big_sur:        "2b5f4ee8e1f8c860941d3c6ce503ee768e2d248d1dadfc65c8925161cd75a48d"
+    sha256 cellar: :any_skip_relocation, catalina:       "581c59ab71974c77a8eae000b800b879fd0bc7e91f4283b4380bb3faad7ef934"
+    sha256 cellar: :any_skip_relocation, mojave:         "0d272f85d2990a3c2eebd08ff26cc0e01209b28af887f758405f7d3542032c1d"
   end
 
   conflicts_with "vlang", because: "both install `v` binaries"
