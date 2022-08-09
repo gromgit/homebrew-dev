@@ -1,9 +1,9 @@
 class OdinLatest < Formula
   desc "Programming language with focus on simplicity, performance and modern systems"
   homepage "https://odin-lang.org/"
-  url "https://github.com/odin-lang/Odin/archive/dev-2022-07.tar.gz"
-  version "dev-2022-07"
-  sha256 "ff04664b5bc478e6a270e2ea08f162d54f585345793b8f63a1f8c625c6457671"
+  url "https://github.com/odin-lang/Odin/archive/dev-2022-08.tar.gz"
+  version "dev-2022-08"
+  sha256 "bef6bec95eb4000050637ae6eef896ad2e179233e988f3817bcdceb11e4a9b00"
   license "BSD-2-Clause"
   head "https://github.com/odin-lang/Odin.git", branch: "master"
 
@@ -13,11 +13,8 @@ class OdinLatest < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-07"
-    sha256 cellar: :any,                 arm64_monterey: "324122b6879bd6074425957af4046c31219e399a2db5b185b165f3824b6a29b4"
-    sha256 cellar: :any,                 monterey:       "6646ffe02c3db0795ca6b2b4d0e3b864379aa48f8942d98d488d86bd0d6f78a7"
-    sha256 cellar: :any,                 big_sur:        "a6394f9ee1f398330f017eba1c6155cb432180991d37e8fbdafc3530553dc051"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "bef48a22769c577ca2f62f456e615d3334ed21c9344608aec29eec95738deba3"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-08"
+    sha256 cellar: :any, arm64_monterey: "98ffaf745730bb67c7048fc32d1d38e0fdbb427d0719c1736644aa28c0ea2611"
   end
 
   # Check if this can be switched to `llvm` at next release
