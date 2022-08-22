@@ -6,6 +6,12 @@ class Nsxiv < Formula
   license "GPL-2.0-or-later"
   head "https://codeberg.org/nsxiv/nsxiv.git", branch: "master"
 
+  bottle do
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nsxiv-30"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "321b5a9310ab612a967af6c6c81fb1258bf665ec13ab0901cc555a2d49678cd5"
+  end
+
   depends_on "giflib"
   depends_on "imlib2"
   depends_on "libexif"
