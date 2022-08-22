@@ -11,6 +11,7 @@ class Nsxiv < Formula
   depends_on "libexif"
   depends_on "libx11"
   depends_on "libxft"
+  depends_on "webp"
   on_linux do
     depends_on "inotify-tools"
   end
@@ -21,7 +22,7 @@ class Nsxiv < Formula
       "CPPFLAGS=-I#{Formula["freetype2"].opt_include}/freetype2",
       "LDLIBS=-lpthread",
     ]
-    make_args << "AUTORELOAD=nop" if OS.mac?
+    make_args << "HAVE_INOTIFY=0" if OS.mac?
     system "make", *make_args, "install"
   end
 
