@@ -359,3 +359,22 @@ for myvar in GITHUB_API_TOKEN GITHUB_PACKAGES_TOKEN GITHUB_PACKAGES_USER GITHUB_
   [[ -n ${!mynewvar} ]] && export ${myvar}=${!mynewvar}
 done
 unset myvar mynewvar
+
+# Run this script to get the necessary source instructions
+# Ref: https://stackoverflow.com/a/28776166
+(return 0 2>/dev/null) || {
+#U USAGE: $0 [`-sh`]
+#U   Development standard bash library (when sourced)
+#U   Output library `source` instructions (when run)
+#U   `-sh` = Add bash shebang to instructions
+  src_lib=../lib/funcs.sh
+  case "$1" in
+    -h|--help) usage 0;;
+    -sh) echo "#!/usr/bin/env bash";;
+  esac
+  cat <<-EOF
+	# Load dev standard shell library
+	# shellcheck source=$src_lib
+	. "\$(dirname "\$0")/${src_lib}"
+	EOF
+}
