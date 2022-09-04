@@ -354,6 +354,8 @@ append_unique() {
   done
 }
 
+export HOMEBREW_CACHE=${HOMEBREW_CACHE:-$(readlink "$(brew --cache)")}
+
 for myvar in GITHUB_API_TOKEN GITHUB_PACKAGES_TOKEN GITHUB_PACKAGES_USER GITHUB_UPSTREAM GIT_EMAIL GIT_NAME GH_TOKEN; do
   mynewvar=HOMEBREW_${myvar}
   [[ -n ${!mynewvar} ]] && export ${myvar}=${!mynewvar}
