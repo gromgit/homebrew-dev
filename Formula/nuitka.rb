@@ -3,14 +3,13 @@ class Nuitka < Formula
 
   desc "Python compiler written in Python"
   homepage "https://nuitka.net"
-  url "https://github.com/Nuitka/Nuitka/archive/refs/tags/0.9.4.tar.gz"
-  sha256 "7373ddae5d18fd84e148e280fa9265d83d18157d49ad5ec76a07af9185df7228"
+  url "https://github.com/Nuitka/Nuitka/archive/refs/tags/1.0.6.tar.gz"
+  sha256 "70a9a10799749a436c08f69eb7fd0e04a8dac80c4ff646177ae13cc3e1e5ac79"
   license "Apache-2.0"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-0.9.4"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "bf1f7abd2af0dbe4941862e873cbfd67125994904d7b8c67b71a74a8f27d7dea"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "253b3f376304916e0ea6abd3726ed133b5498b4dcc01b876a6f3d661413e45ed"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-1.0.6"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "f7d63e84505cb7f6549711b2f100b3d1a16e5d30629923d0311bafa9b620aee8"
   end
 
   depends_on "llvm"
