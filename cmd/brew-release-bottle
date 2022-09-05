@@ -7,6 +7,8 @@
 #:    `-nc`|`--no-cleanup`       : Don't remove `formula` after bottling
 #:    `-V` |`--bump-version` *ver* : Bump `formula` version to *ver*
 #:    `--root-url=`*url*         : Use *url* as common root URL for all formulae
+#:    `-nv`|`--no-url-version`   : Don't add version to root URL
+#:    `-fv`|`--force-url-version`: Add version to root URL
 
 # shellcheck source=/dev/null
 . "$(dirname "$0")/../lib/funcs.sh"
@@ -42,6 +44,7 @@ done
 export HOMEBREW_BOTTLE_SUDO_PURGE=1
 
 tap_base=$(brew --repo homebrew/core); tap_base=${tap_base%/homebrew/homebrew-core}
+url_version=1
 
 rb2formula() {
   if [[ -f $1 ]] && [[ $1 =~ ${tap_base}/([^/]+)/homebrew-([^/]+)/Formula/(.*)\.rb ]]; then
@@ -60,6 +63,8 @@ while true; do
     -V|--bump-version) new_version=$2; shift;;
     --root-url=*) default_root_url=${1#*=};;
     --root-url) default_root_url=$2; shift;;
+    -nv|--no-url-version) url_version="";;
+    -fv|--force-url-version) url_version=1;;
     *) break;;
   esac
   shift
@@ -122,7 +127,7 @@ for f in "$@"; do
     fver=$(jquery .versions.stable)
     if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
       # New bottle section
-      root_url=${default_root_url:-"https://github.com/${real_ghrepo}/releases/download/${fname}-${fver}"}
+      root_url=${default_root_url:-"https://github.com/${real_ghrepo}/releases/download/${fname}${url_version:+-${fver}}"}
       keep_old=()
     else
       root_url=$(jquery .bottle.stable.root_url)
