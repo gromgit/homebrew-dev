@@ -180,3 +180,5 @@ for f in "$@"; do
   fi
 
 done
+
+[[ -n $no_cleanup ]] || brew autoremove
