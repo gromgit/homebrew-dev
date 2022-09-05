@@ -151,6 +151,10 @@ for f in "$@"; do
       fi
     done
     git_in "$repodir" push 
+    # HACK: if it's a versioned formula, we need to edit the upload name manually
+    if [[ $fname == *@* ]]; then
+      read -rp "Please edit release tarball in ${root_url/\/download\//\/tag\/}, then hit Return to continue: " </dev/tty
+    fi
 
     # Reinstall and test
     echo "----- Reinstalling & testing $f -----"
