@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Load personal standard shell library
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs ${GNU_PREFIX}date ${GNU_PREFIX}stat
+
+repo=${REPO:-$(brew --repo homebrew/core)}
+failed_file=${1:-/tmp/brew-build-local.failed}
+[[ -s $failed_file ]] || fatal "Unable to find '$failed_file'"
+export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
+
+# formula_path <formula>
+formula_path() {
+  local fpath
+  if [[ -e Aliases/$1 ]]; then
+    # Check for alias
+    fpath=$(realpath --relative-base="$repo" -e Aliases/"$1" 2>/dev/null)
+  else
+    fpath=Formula/${1}.rb
+  fi
+  if [[ -s $fpath ]]; then
+    echo "$fpath"
+  else
+    error "formula_path: $1 not found"
+    return 1
+  fi
+}
+
+wrap_up() {
+  [[ $(( ${#passed[@]} + ${#failed[@]} )) -gt 0 ]] || return
+  local oldIFS=$IFS
+  IFS=$'\n'
+  [[ -s "$failed_file" ]] && mv -v "$failed_file" "${failed_file}.$(${GNU_PREFIX}date -d @$(${GNU_PREFIX}stat -c %Y "$failed_file") +%Y%m%d.%H%M%S)"
+  echo "${failed[@]}" > "$failed_file"
+  IFS=$oldIFS
+  echo "${Tty_green}Passed:${Tty_reset} ${passed[*]}"
+  echo "${Tty_red}Failed:${Tty_reset} ${failed[*]}"
+}
+trap wrap_up EXIT
+
+cd "$repo" || fatal "Can't cd into $repo"
+
+passed=()
+readarray -t failed < "$failed_file"
+failed+=("")
+
+while [[ ${#failed[@]} -gt 0 ]]; do
+  f=${failed[0]}
+  if [[ -n $f ]]; then
+    echo "${Tty_blue}>>> ${Tty_green}$f${Tty_reset} ${failed[*]:1}"
+    if brew release-bottle -w -nv "$f"; then
+      # Yay, we can drop this
+      passed+=("$f")
+      failed=("${failed[@]:1}")
+    elif [[ -n $interactive ]]; then
+      # Ask user what to do next
+      while true; do
+        read -rp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (R)etry now, (S)hell out, retry ${Tty_green}(L)${Tty_reset}ater, (D)rop, (Q)uit? "
+        case "${REPLY,,}" in
+          q*) exit 0;;
+          r*) continue 2;;
+          s*) "$SHELL" -i;;
+          d*) failed=("${failed[@]:1}"); break;;
+          *) failed=("${failed[@]:1}" "$f"); break;;
+        esac
+      done
+    fi
+  else
+    # Finished one cycle
+    failed=("${failed[@]:1}")
+    if [[ ${#failed[@]} -gt 0 ]]; then
+      read -rp "${Tty_red}>>> ${Tty_reset}${#failed[@]} formulae left to process, run again? (Y|n) "
+      [[ ${REPLY,,} == n* ]] && break
+      # We force interactivity the second time around
+      interactive=1
+    else
+      # Nothing left to process
+      break
+    fi
+  fi
+done
