@@ -14,7 +14,7 @@ fi
 repo=$(brew --repo homebrew/core)
 cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
 base=${repo##*/}
-real=homebrew-realcore
+real=.real/homebrew-core
 err_log=/tmp/"$(basename "$0")".log
 
 info "START: $(basename "$0")"
@@ -140,5 +140,7 @@ cmd brew style --fix homebrew/core # || fatal "brew style failed"
 
 # Record our last commit
 cmd git -C "$real" log --pretty=format:%H HEAD | head -1 | tee "$base/.settings/last_commit"
+
+cmd brew update-core-meta
 
 info "DONE: $(basename "$0")"

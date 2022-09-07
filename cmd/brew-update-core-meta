@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Load dev standard shell library
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs jq
+
+repo=$(brew --repo homebrew/core)
+metadir=${repo}/.meta
+metabase=${metadir}/formula
+cd "$repo"
+mkdir -p "$metadir"
+if [[ Formula -nt ${metabase}.json ]]; then
+  info "Dumping all formulae info to JSON"
+  brew info --all --json > "$metabase".json
+fi
+if [[ ${metabase}.json -nt ${metabase}.tsort ]]; then
+  info "Updating tsort data"
+  jq -r '.[]|select(.tap=="homebrew/core")|[[.full_name],.dependencies,.build_dependencies]|flatten|join(" ")' "$metabase".json > "$metabase".tsort
+fi

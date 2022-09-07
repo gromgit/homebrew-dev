@@ -36,7 +36,13 @@ for j in */*.json; do
       warn "Unable to determine GH repo, skipping $d"
       continue
     fi
-    rf=$(deurlify "$rf")
+    rf2=$(deurlify "$rf")
+    # HACK: urlify '#' again
+    if [[ $rf2 == *\#* ]]; then
+      rf=${rf2//\#/%23}
+    else
+      rf=$rf2
+    fi
     [[ -s "$d/$lf" ]] && cmd mv -v "$d/$lf" "$d/$rf"
     tag=${root_url##*/}
     if cmd gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
@@ -52,6 +58,9 @@ for j in */*.json; do
     cmd rm -fr "$d" # &&
     # cmd git -C "$core" add "$tap_git_path" &&
     # cmd git -C "$core" commit -m "${formula}: update ${pkg_version} bottle" "$tap_git_path"
+    if [[ $rf != $rf2 ]]; then
+      read -rp "Please edit release tarball in ${root_url/\/download\//\/tag\/}, then hit Return to continue: " </dev/tty
+    fi
   done
 done
 

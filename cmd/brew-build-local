@@ -80,6 +80,21 @@ flag_with_reason() {
   } > /tmp/brew-build-local.issues.tmp && mv /tmp/brew-build-local.issues.tmp "${cfgdir}/issues"
 }
 
+# alt_build <formula>...
+alt_build() {
+  local f
+  local -a passed failed
+  for f in "$@"; do
+    if brew release-bottle -w --root-url="${base_url}/releases/download/${f}" "$f"; then
+      passed+=("$f")
+    else
+      failed+=("$f")
+    fi
+  done
+  echo "${Tty_green}Passed:${Tty_reset} ${passed[*]}"
+  echo "${Tty_red}Failed:${Tty_reset} ${failed[*]}"
+}
+
 while true; do
   case "$1" in
     -i|--interactive) interactive=1;;
@@ -202,22 +217,26 @@ for f in "$@"; do
   }
   formula=$(formula_path "$f")
   installed=""
-  build_cmd=("${default_build_cmd[@]}")
   [[ -d ${HOMEBREW_CELLAR}/${f} ]] && installed=yes
   can_build "$formula" || continue
   while true; do
     if (
       mkdir -p "$build_dir/$f"
       cd "$build_dir/$f" || fatal "Can't cd into $(dirname "$0")"
-      for timeout in "${default_timeouts[@]}"; do
-        cmd timelimit -t "$timeout" -T "$default_kill_timeout" "${build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
-        rtn=$?
-        if [[ $rtn -lt 128 ]]; then
-          # Not a timeout
-          exit "$rtn"
-        fi
-      done
-      exit "$rtn"
+      if [[ $f == *@* ]]; then
+        # Go straight to alt build cmd for versioned formulae
+        cmd timelimit -t 86400 brew release-bottle -w --root-url="${base_url}/releases/download/${f}" "$f"
+      else
+        for timeout in "${default_timeouts[@]}"; do
+          cmd timelimit -t "$timeout" -T "$default_kill_timeout" "${default_build_cmd[@]}" --root-url="${base_url}/releases/download/${f}" "$f"
+          rtn=$?
+          if [[ $rtn -lt 128 ]]; then
+            # Not a timeout
+            exit "$rtn"
+          fi
+        done
+        exit "$rtn"
+      fi
     ); then
       passed+=("$f")
       [[ ${#failed[@]} -gt 0 && ${failed[-1]} == "$f" ]] && failed=("${a[@]::${#a[@]}-1}")
@@ -264,8 +283,11 @@ echo "${failed[*]}" | tr ' ' \\012 > "$failed_file"
 
 # See if user wants to go another (interactive) round with the failed formulae
 if [[ -z "$interactive" && ${#failed[@]} -gt 0 ]]; then
-  read -rp "${Tty_red}>>>${Tty_reset} Try failed formulae again in interactive mode? (y|N) "
-  [[ ${REPLY,,} == y* ]] && exec "$0" -i "${failed[@]}"
+  read -rp "${Tty_red}>>>${Tty_reset} Try failed formulae again in interactive mode? (y|N|a) "
+  case "${REPLY,,}" in
+    y*) exec "$0" -i "${failed[@]}";;
+    a*) exec brew release-core "$failed_file";;
+  esac
 fi
 
 info "DONE: $(basename "$0")"
