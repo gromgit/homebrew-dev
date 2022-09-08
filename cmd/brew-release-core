@@ -31,7 +31,7 @@ wrap_up() {
   local oldIFS=$IFS
   IFS=$'\n'
   [[ -s "$failed_file" ]] && mv -v "$failed_file" "${failed_file}.$(${GNU_PREFIX}date -d @$(${GNU_PREFIX}stat -c %Y "$failed_file") +%Y%m%d.%H%M%S)"
-  echo "${failed[@]}" > "$failed_file"
+  echo "${failed[*]}" | grep -Fv "|" > "$failed_file"
   IFS=$oldIFS
   echo "${Tty_green}Passed:${Tty_reset} ${passed[*]}"
   echo "${Tty_red}Failed:${Tty_reset} ${failed[*]}"
@@ -42,11 +42,11 @@ cd "$repo" || fatal "Can't cd into $repo"
 
 passed=()
 readarray -t failed < "$failed_file"
-failed+=("")
+failed+=("|")
 
 while [[ ${#failed[@]} -gt 0 ]]; do
   f=${failed[0]}
-  if [[ -n $f ]]; then
+  if [[ $f != "|" ]]; then
     echo "${Tty_blue}>>> ${Tty_green}$f${Tty_reset} ${failed[*]:1}"
     if brew release-bottle -w -nv "$f"; then
       # Yay, we can drop this
@@ -64,10 +64,13 @@ while [[ ${#failed[@]} -gt 0 ]]; do
           *) failed=("${failed[@]:1}" "$f"); break;;
         esac
       done
+    else
+      # Keep it for later
+      failed=("${failed[@]:1}" "$f")
     fi
   else
     # Finished one cycle
-    failed=("${failed[@]:1}")
+    failed=("${failed[@]:1}" "|")
     if [[ ${#failed[@]} -gt 0 ]]; then
       read -rp "${Tty_red}>>> ${Tty_reset}${#failed[@]} formulae left to process, run again? (Y|n) "
       [[ ${REPLY,,} == n* ]] && break
