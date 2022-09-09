@@ -55,10 +55,11 @@ while [[ ${#failed[@]} -gt 0 ]]; do
     elif [[ -n $interactive ]]; then
       # Ask user what to do next
       while true; do
-        read -rp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (R)etry now, (S)hell out, retry ${Tty_green}(L)${Tty_reset}ater, (D)rop, (Q)uit? "
-        case "${REPLY,,}" in
+        read -rp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (r)etry now, (p)repend <formula>, (s)hell out, retry ${Tty_green}(L)${Tty_reset}ater, (d)rop, (q)uit? " ans
+        case "${ans,,}" in
           q*) exit 0;;
           r*) continue 2;;
+          p*) failed=(${ans:1} "${failed[@]}"); break;;
           s*) "$SHELL" -i;;
           d*) failed=("${failed[@]:1}"); break;;
           *) failed=("${failed[@]:1}" "$f"); break;;
@@ -71,8 +72,9 @@ while [[ ${#failed[@]} -gt 0 ]]; do
   else
     # Finished one cycle
     failed=("${failed[@]:1}" "|")
-    if [[ ${#failed[@]} -gt 0 ]]; then
-      read -rp "${Tty_red}>>> ${Tty_reset}${#failed[@]} formulae left to process, run again? (Y|n) "
+    nfailed=$((${#failed[@]} - 1))
+    if [[ $nfailed -gt 0 ]]; then
+      read -rp "${Tty_red}>>> ${Tty_reset}$nfailed formulae left to process, run again? (Y|n) "
       [[ ${REPLY,,} == n* ]] && break
       # We force interactivity the second time around
       interactive=1
