@@ -41,7 +41,7 @@ trap wrap_up EXIT
 cd "$repo" || fatal "Can't cd into $repo"
 
 passed=()
-readarray -t failed < "$failed_file"
+readarray -t failed < <(tr " " $'\n' < "$failed_file")
 failed+=("|")
 
 while [[ ${#failed[@]} -gt 0 ]]; do
