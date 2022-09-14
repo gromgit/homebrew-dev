@@ -35,6 +35,7 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 # Derive some important vars
 cache_root=$(dirname "$(realpath -e "$(brew --cache)")")
 export cache_root
+[[ $(uname -s) == "Darwin" ]] && GNU_PREFIX=g
 
 # fatal: Report fatal error
 # USAGE: fatal <msg> ...
