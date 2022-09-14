@@ -195,6 +195,7 @@ shopt -s lastpipe
 can_build() {
   [[ -f $1 ]] || { warn "can_build: $1 not a file"; b_cache+=(["$name"]=1); return 1; }
   local drop f1 f2 name
+  local metajson=${repo}/.meta/formula.json
   name=$(basename "$1" .rb)
 
   # First check cache
@@ -218,7 +219,8 @@ can_build() {
   case "$(uname -s)" in
     Darwin)
 
-      if grep -q "depends_on :linux" "$1"; then
+      local os_dep=$(jq '.[]|select(.name=="'"$name"'" and .requirements[].name=="linux")' "$metajson")
+      if [[ -n $os_dep ]]; then
         warn "Skipping $name because depends_on :linux"
         b_cache+=(["$name"]=1); return 1
       fi
@@ -237,7 +239,8 @@ can_build() {
 
     ;;
     Linux)
-      if grep -q "depends_on :macos" "$1"; then
+      local os_dep=$(jq '.[]|select(.name=="'"$name"'" and .requirements[].name=="macos")' "$metajson")
+      if [[ -n $os_dep ]]; then
         warn "Skipping $name because depends_on :macos"
         b_cache+=(["$name"]=1); return 1
       fi
