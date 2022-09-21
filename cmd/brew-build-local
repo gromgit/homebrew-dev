@@ -17,6 +17,7 @@ need_progs brew git lsof timelimit
 shopt -s lastpipe
 
 repo=$(brew --repo homebrew/core)
+optdir=$(brew --prefix)/opt
 cfgdir=${repo}/.settings
 cache_dir=$(brew --cache)
 stop_file=/tmp/brew-build-local.stop
@@ -262,6 +263,14 @@ for f in "$@"; do
     fi
   done
   cmd brew upload-local
+  if grep -q "$f" "$repo"/.tools/.list; then
+    # Save a copy of the upgraded tool(s)
+    for prog in "${optdir}/${f}/bin"/*; do
+      dest_prog=${repo}/.tools/bin/${prog##*/}
+      [[ -e $dest_prog ]] && cmd mv -fv "$dest_prog" "$dest_prog".bkup
+      cmd ln -fv "$prog" "$dest_prog"
+    done
+  fi
   # Clean up manually afterwards
   if [[ -z $installed && -d $HOMEBREW_CELLAR/$f ]]; then
     cmd brew rm "$f" && cmd brew autoremove
