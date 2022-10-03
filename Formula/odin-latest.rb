@@ -15,6 +15,7 @@ class OdinLatest < Formula
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-10"
     sha256 cellar: :any,                 arm64_monterey: "91d78901bad12017bfed8e074d2fc31014386a79b478b3f08ba971adf5bf520f"
+    sha256 cellar: :any,                 monterey:       "bfb22c56a473460a2cbdef2bf86d1940e7155c45c4473895bf8ec7251ad80d24"
     sha256 cellar: :any,                 big_sur:        "a4db58fad18bf31543e10ffcea904e8e65efef912ab14218133196c2d519c62a"
     sha256 cellar: :any_skip_relocation, x86_64_linux:   "c43662aaf0ccb2d3bb45647a2e42bfb2063d21ea47a042cbc58718f0624b9847"
   end
