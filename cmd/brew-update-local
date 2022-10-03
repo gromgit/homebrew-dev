@@ -16,12 +16,18 @@ cd "$(dirname "$repo")" || fatal "Unable to cd to $(dirname "$repo")"
 base=${repo##*/}
 real=.real/homebrew-core
 err_log=/tmp/"$(basename "$0")".log
+fail_log=/tmp/"$(basename "$0")".fail
+updated_log=/tmp/"$(basename "$0")".updated
+rm -f "$fail_log" "$updated_log"
 
 info "START: $(basename "$0")"
 
-[[ -d $real ]] || {
+if [[ -d $real ]]; then
+  info "Updating $real"
+  git -C "$real" pull || fatal "$real update failed"
+else
   mv "$base" "$real" || fatal "No '$base' and no '$real', can't proceed."
-}
+fi
 if [[ -d $base ]]; then
   info "Updating Homebrew"
   brew update || fatal "brew update failed"
@@ -59,7 +65,7 @@ cmd brew fix-timestamps -C "$real" -f "$repo"/.settings/last_timestamp
 
 info "Updating core repo"
 
-rsync_opts=()
+rsync_opts=(--log-file="$err_log")
 if [[ -s $base/.settings/last_commit ]]; then
   # Let git tell us what changed since the last time we updated
   cmd git -C "$real" log --pretty='format:' --name-only "$(<"$base/.settings/last_commit")"..HEAD | sort -u > "$HOMEBREW_TEMP"/rsync-includes
@@ -88,9 +94,9 @@ cmd rsync -avum "${rsync_opts[@]}" "$real"/ "$base"/
     fbase=$(basename "$f" .rb)
     if cant_build=$(can_build "$f"); then
       # Apply patch if available
-      if [[ -s patches/${fbase}.patch ]] && ! git diff --exit-code "$f" ; then
+      if [[ -s .patches/${fbase}.patch ]] && ! git diff --exit-code "$f" ; then
         info "Patching $f"
-        patch -p1 < patches/"${fbase}".patch
+        patch -p1 < .patches/"${fbase}".patch || echo "${fbase} patch failed" >&3
       fi
       if ! needs_rebottling "$f"; then
         # This formula doesn't need rebuilding
@@ -105,7 +111,7 @@ cmd rsync -avum "${rsync_opts[@]}" "$real"/ "$base"/
       cmd git commit -m "${fbase}: ${cant_build}" "$f"
     fi
   done
-)
+) 3>>"$fail_log"
 
 # Do a Big-Bang fix at the end
 cmd brew style --fix homebrew/core # || fatal "brew style failed"
@@ -136,11 +142,13 @@ cmd brew style --fix homebrew/core # || fatal "brew style failed"
   cmd git pull
   cmd git commit -m "Updates from $real $(date +%Y%m%d.%H%M%S)"
   cmd git push
-)
+) 3>>"$fail_log"
 
 # Record our last commit
 cmd git -C "$real" log --pretty=format:%H HEAD | head -1 | tee "$base/.settings/last_commit"
 
 cmd brew update-core-meta
+
+[[ -s $fail_log ]] && error "Some formulae failed to update. Please check $fail_log for details."
 
 info "DONE: $(basename "$0")"

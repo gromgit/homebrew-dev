@@ -5,8 +5,7 @@
 need_progs ${GNU_PREFIX}date ${GNU_PREFIX}stat
 
 repo=${REPO:-$(brew --repo homebrew/core)}
-failed_file=${1:-/tmp/brew-build-local.failed}
-[[ -s $failed_file ]] || fatal "Unable to find '$failed_file'"
+failed_file=/tmp/$(basename "$0").failed
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
 
 # formula_path <formula>
@@ -38,10 +37,25 @@ wrap_up() {
 }
 trap wrap_up EXIT
 
+while true; do
+  case "$1" in
+    -i|--interactive) interactive=1;;
+    *) break;;
+  esac
+  shift
+done
+
 cd "$repo" || fatal "Can't cd into $repo"
 
 passed=()
-readarray -t failed < <(tr " " $'\n' < "$failed_file")
+if [[ -s "$1" ]]; then
+  # User-specified failed file
+  failed_file=$1
+  readarray -t failed < <(tr " " $'\n' < "$failed_file")
+else
+  # Formulae listed on command line
+  failed=("$@")
+fi
 failed+=("|")
 
 while [[ ${#failed[@]} -gt 0 ]]; do
