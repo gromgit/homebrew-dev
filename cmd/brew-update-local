@@ -22,9 +22,12 @@ rm -f "$fail_log" "$updated_log"
 
 info "START: $(basename "$0")"
 
-[[ -d $real ]] || {
+if [[ -d $real ]]; then
+  info "Updating $real"
+  git -C "$real" pull || fatal "$real update failed"
+else
   mv "$base" "$real" || fatal "No '$base' and no '$real', can't proceed."
-}
+fi
 if [[ -d $base ]]; then
   info "Updating Homebrew"
   brew update || fatal "brew update failed"
