@@ -5,7 +5,7 @@
 need_progs ${GNU_PREFIX}date ${GNU_PREFIX}stat
 
 repo=${REPO:-$(brew --repo homebrew/core)}
-failed_file=/tmp/$(basename "$0").failed
+failed_file=${HOMEBREW_TEMP:-/brew/tmp}/$(basename "$0").failed
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
 
 # formula_path <formula>
@@ -25,13 +25,30 @@ formula_path() {
   fi
 }
 
-wrap_up() {
-  [[ $(( ${#passed[@]} + ${#failed[@]} )) -gt 0 ]] || return
+read_failed() {
+  readarray -t failed < <(tr " " $'\n' < "$failed_file")
+  local i; for i in "${failed[@]}"; do
+    [[ $i == "|" ]] && return
+  done
+  # Append pipe if there isn't one already
+  failed+=("|")
+}
+
+# write_failed [-o]
+#   -o = overwrite existing file
+write_failed() {
   local oldIFS=$IFS
   IFS=$'\n'
-  [[ -s "$failed_file" ]] && mv -v "$failed_file" "${failed_file}.$(${GNU_PREFIX}date -d @$(${GNU_PREFIX}stat -c %Y "$failed_file") +%Y%m%d.%H%M%S)"
-  echo "${failed[*]}" | grep -Fv "|" > "$failed_file"
+  if [[ $1 != "-o" ]]; then
+    [[ -s "$failed_file" ]] && mv -v "$failed_file" "${failed_file}.$(${GNU_PREFIX}date -d @$(${GNU_PREFIX}stat -c %Y "$failed_file") +%Y%m%d.%H%M%S)"
+  fi
+  echo "${failed[*]}" > "$failed_file"
   IFS=$oldIFS
+}
+
+wrap_up() {
+  [[ $(( ${#passed[@]} + ${#failed[@]} )) -gt 0 ]] || return
+  write_failed
   echo "${Tty_green}Passed:${Tty_reset} ${passed[*]}"
   echo "${Tty_red}Failed:${Tty_reset} ${failed[*]}"
 }
@@ -48,15 +65,15 @@ done
 cd "$repo" || fatal "Can't cd into $repo"
 
 passed=()
-if [[ -s "$1" ]]; then
+[[ $# -eq 0 ]] && set -- "$failed_file"
+if [[ -s $1 ]]; then
   # User-specified failed file
   failed_file=$1
-  readarray -t failed < <(tr " " $'\n' < "$failed_file")
+  read_failed
 else
   # Formulae listed on command line
-  failed=("$@")
+  failed=("$@" "|")
 fi
-failed+=("|")
 
 while [[ ${#failed[@]} -gt 0 ]]; do
   f=${failed[0]}
@@ -65,7 +82,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
     if brew release-bottle -w -nv "$f"; then
       # Yay, we can drop this
       passed+=("$f")
-      failed=("${failed[@]:1}")
+      failed=("${failed[@]:1}"); write_failed -o
     elif [[ -n $interactive ]]; then
       # Ask user what to do next
       while true; do
@@ -73,15 +90,15 @@ while [[ ${#failed[@]} -gt 0 ]]; do
         case "${ans,,}" in
           q*) exit 0;;
           r*) continue 2;;
-          p*) failed=(${ans:1} "${failed[@]}"); break;;
+          p*) failed=(${ans:1} "${failed[@]}"); write_failed -o; break;;
           s*) "$SHELL" -i;;
-          d*) failed=("${failed[@]:1}"); break;;
-          *) failed=("${failed[@]:1}" "$f"); break;;
+          d*) failed=("${failed[@]:1}"); write_failed -o; break;;
+          *) failed=("${failed[@]:1}" "$f"); write_failed -o; break;;
         esac
       done
     else
       # Keep it for later
-      failed=("${failed[@]:1}" "$f")
+      failed=("${failed[@]:1}" "$f"); write_failed -o
     fi
   else
     # Finished one cycle
@@ -90,6 +107,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
     if [[ $nfailed -gt 0 ]]; then
       read -rp "${Tty_red}>>> ${Tty_reset}$nfailed formulae left to process, run again? (Y|n) "
       [[ ${REPLY,,} == n* ]] && break
+      write_failed -o
       # We force interactivity the second time around
       interactive=1
     else
