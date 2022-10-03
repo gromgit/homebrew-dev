@@ -240,7 +240,7 @@ can_build() {
 
     ;;
     Linux)
-      local os_dep=$(jq '.[]|select(.name=="'"$name"'" and .requirements[].name=="macos")' "$metajson")
+      local os_dep=$(jq 'map(select(.name=="'"$name"'"))|.[].requirements[]|select(.name=="macos" and .version==null)' "$metajson")
       if [[ -n $os_dep ]]; then
         warn "Skipping $name because depends_on :macos"
         b_cache+=(["$name"]=1); return 1
