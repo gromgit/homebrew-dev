@@ -253,7 +253,7 @@ for f in "$@"; do
           e*) brew edit "$f"; while ! brew style --fix "$f"; do brew edit "$f"; done; continue;;
           a[1-9][0-9]*) timeout=${REPLY:1} ;&
           a*) build_cmd=(brew release-bottle -w); continue;;
-          s*) ( cd "$build_dir/$f" ; "$SHELL" -i ) || break;;
+          s*) if ( cd "$build_dir/$f" ; "$SHELL" -i ); then continue; else break; fi;;
           f*) flag_with_reason "$f"; break;;
           *) : ;;
         esac
