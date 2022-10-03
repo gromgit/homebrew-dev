@@ -1,9 +1,9 @@
 class OdinLatest < Formula
   desc "Programming language with focus on simplicity, performance and modern systems"
   homepage "https://odin-lang.org/"
-  url "https://github.com/odin-lang/Odin/archive/dev-2022-09.tar.gz"
-  version "dev-2022-09"
-  sha256 "74f23e45f1fd5a5785d6c75f0807aaaf36b10813bfbac7b5cc2920aa626742f7"
+  url "https://github.com/odin-lang/Odin/archive/dev-2022-10.tar.gz"
+  version "dev-2022-10"
+  sha256 "bcf1c01de804ba47c5f8f97d1863854e7000d8c4aa07d33a06bb351126e6233b"
   license "BSD-2-Clause"
   head "https://github.com/odin-lang/Odin.git", branch: "master"
 
@@ -13,14 +13,11 @@ class OdinLatest < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-09"
-    sha256 cellar: :any, arm64_monterey: "0d9dfb2f0bc416b51526b27219d47689d181a9199d924eebe90e1ebcfe896d83"
-    sha256 cellar: :any, monterey:       "cf096258de4cf33c9485ffabd1a9221b2537bc6204357f200912aa3f021a3480"
-    sha256 cellar: :any, big_sur:        "57ff06e4429edf3ced6406d44b3813a0f3998b277905c925bbdf433e64bb4ad0"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2022-10"
+    sha256 cellar: :any, arm64_monterey: "91d78901bad12017bfed8e074d2fc31014386a79b478b3f08ba971adf5bf520f"
   end
 
-  # Check if this can be switched to `llvm` at next release
-  depends_on "llvm"
+  depends_on "llvm@14"
   # Build failure on macOS 10.15 due to `__ulock_wait2` usage.
   # Issue ref: https://github.com/odin-lang/Odin/issues/1773
   depends_on macos: :big_sur
@@ -28,6 +25,8 @@ class OdinLatest < Formula
   fails_with gcc: "5" # LLVM is built with GCC
 
   def install
+    llvm = deps.map(&:to_formula).find { |f| f.name.match?(/^llvm(@\d+(\.\d+)*)?$/) }
+
     # Keep version number consistent and reproducible for tagged releases.
     # Issue ref: https://github.com/odin-lang/Odin/issues/1772
     unless build.head?
@@ -41,7 +40,7 @@ class OdinLatest < Formula
     libexec.install "odin", "core", "shared"
     (bin/"odin").write <<~EOS
       #!/bin/bash
-      export PATH="#{Formula["llvm@11"].opt_bin}:$PATH"
+      export PATH="#{llvm.opt_bin}:$PATH"
       exec -a odin "#{libexec}/odin" "$@"
     EOS
     pkgshare.install "examples"
@@ -59,7 +58,7 @@ class OdinLatest < Formula
         fmt.println("Hellope!");
       }
     EOS
-    system "#{bin}/odin", "build", "hellope.odin", "-file", "-out:hellope"
-    assert_equal "Hellope!\n", `./hellope`
+    system "#{bin}/odin", "build", "hellope.odin", "-file"
+    assert_equal "Hellope!\n", shell_output("./hellope.bin")
   end
 end
