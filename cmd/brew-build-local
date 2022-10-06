@@ -295,7 +295,7 @@ if [[ -z "$interactive" && ${#failed[@]} -gt 0 ]]; then
   read -rp "${Tty_red}>>>${Tty_reset} Try failed formulae again in interactive mode? (y|N|a) "
   case "${REPLY,,}" in
     y*) exec "$0" -i "${failed[@]}";;
-    a*) exec brew release-core "$failed_file";;
+    a*) exec brew release-core -i "$failed_file";;
   esac
 fi
 
