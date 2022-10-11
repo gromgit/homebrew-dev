@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 funcs_dir=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
 # string formatters
+# Ref: console_codes(4) man page
 if [[ -t 1 ]]; then
-  Tty_escape() { printf "\033[%sm" "$1"; }
+  # Csi_escape <param> - ECMA-48 CSI sequence
+  Csi_escape() { printf "\033[%s" "$1"; }
 else
-  Tty_escape() { :; }
+  Csi_escape() { :; }
 fi
-Tty_mkbold() { Tty_escape "1;${1:-39}"; }
+# Sgr_escape <param> - ECMA-48 Set Graphics Rendition
+Sgr_escape() { Csi_escape "${1}m"; }
+Tty_mkbold() { Sgr_escape "1;${1:-39}"; }
 Tty_red=$(Tty_mkbold 31)
 Tty_green=$(Tty_mkbold 32)
 # shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
@@ -18,10 +22,14 @@ Tty_cyan=$(Tty_mkbold 36)
 # shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_white=$(Tty_mkbold 37)
 # shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
-Tty_underscore=$(Tty_escape 38)
+Tty_underscore=$(Sgr_escape 38)
 # shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
 Tty_bold=$(Tty_mkbold 39)
-Tty_reset=$(Tty_escape 0)
+Tty_reset=$(Sgr_escape 0)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
+Tty_clear_to_eol=$(Csi_escape K)
+# shellcheck disable=SC2034 # it's not used in here, but other scripts may use it
+Tty_clear_line=$(Csi_escape 2K)
 
 # XDG Base Directory Specifications
 # REF: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
