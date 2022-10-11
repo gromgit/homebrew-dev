@@ -73,11 +73,15 @@ for f in "$@"; do
   gendiff "$f" > "$p"
   if [[ $(grep -Eh '^@@ ' "$p" | wc -l) -gt 1 ]]; then
     # We have a candidate patch
-    cat "$p"
-    read -rp "$f : (o)verwrite with original, (L)eave as-is, create (p)atch? "
-    case "${REPLY,,}" in
-      o*) cp -av "$realdir/$f" "$f";;
-      p*) mkpatch "$p";;
-    esac
+    while [[ -s $p ]]; do
+      cat "$p"
+      read -rp "${Tty_green}$f${Tty_reset} : (o)verwrite with original, (L)eave as-is, (e)dit side-by-side, create (p)atch? "
+      case "${REPLY,,}" in
+        o*) cp -av "$realdir/$f" "$f";;
+        e*) vim -O "$realdir/$f" "$f";;
+        p*) mkpatch "$p";;
+        *) break;;
+      esac
+    done
   fi
 done
