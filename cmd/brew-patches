@@ -39,7 +39,11 @@ gendiff() {
   local f=$1
   if [[ -s $f ]]; then
     if [[ -s ${realdir}/$f ]]; then
-      diff -u "${realdir}/$f" "$f"
+      # Create bottle-less copies
+      local f1=${tmpd}/a/${f} f2=${tmpd}/b/${f}
+      mkdir -p "${f1%/*}" && remove_bottle_filter < "${realdir}/$f" > "$f1"
+      mkdir -p "${f2%/*}" && remove_bottle_filter < "$f" > "$f2"
+      ( cd "$tmpd"; diff -u ?/"$f" )
     else
       error "Original formula $f not found"
     fi
@@ -69,11 +73,13 @@ mkpatch() {
 
 [[ $# -eq 0 ]] && set -- Formula/*.rb
 for f in "$@"; do
+  echo -en ">>> $f${Tty_clear_to_eol}\r" >&2
   p=$tmpd/$(basename "$f" .rb).patch
   gendiff "$f" > "$p"
   if [[ $(grep -Eh '^@@ ' "$p" | wc -l) -gt 1 ]]; then
     # We have a candidate patch
     while [[ -s $p ]]; do
+      info "PATCH: $p"
       cat "$p"
       read -rp "${Tty_green}$f${Tty_reset} : (o)verwrite with original, (L)eave as-is, (e)dit side-by-side, create (p)atch? "
       case "${REPLY,,}" in
