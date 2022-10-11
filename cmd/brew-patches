@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+#:`brew patches` [options] [*Formula/f.rb* ...]
+#:    Builds and releases local patch files for *Formula/f.rb*
+#:      (default: all formulae in core tap)
+#:    `--tap` *tap* : Process *tap* (default: homebrew/core)
+# Load dev standard shell library
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+tmpd=${HOMEBREW_TEMP:-/tmp}/$(basename "$0").$$
+mkdir -p "$tmpd"
+trap cleanup EXIT
+cleanup() {
+  if [[ -n $keep_tmp ]]; then
+    info "Keeping tmp dir $tmpd"
+  else
+    rm -fr "$tmpd"
+  fi
+}
+
+tap=homebrew/core
+for editor in $HOMEBREW_EDITOR $EDITOR $VISUAL; do
+  [[ -n $editor ]] || fatal "Unable to determine editor to use"
+done
+
+while true; do
+  case "$1" in
+    --tap) tap=$2; shift;;
+    *) break;;
+  esac
+done
+
+cd "$(brew --repo homebrew/core)" || fatal "Can't cd to tap '$tap'"
+realdir=.real
+patchdir=.patches
+[[ -d $realdir/Formula ]] || fatal "Can't find $realdir"
+
+# gendiff Formula/<formula>.rb
+gendiff() {
+  local f=$1
+  if [[ -s $f ]]; then
+    if [[ -s ${realdir}/$f ]]; then
+      diff -u "${realdir}/$f" "$f"
+    else
+      error "Original formula $f not found"
+    fi
+  else
+    error "Local formula $f not found"
+  fi
+}
+
+# mkpatch <patch_file>
+mkpatch() {
+  local p=$1
+  while [[ -s $p ]]; do
+    "$editor" "$p"
+    cat "$p"
+    read -rp "$p : (s)ave, (R)e-edit, (d)elete? "
+    case "${REPLY,,}" in
+      s*)
+        local p2=${patchdir}/${p##*/}
+        # Back up previous patch (if exists)
+        [[ -s $p2 ]] && mv -v "$p2" "$p2".$(date -r "$p2" +%Y%m%d.%H%M%S)
+        mv -v "$p" "$p2"
+      ;;
+      d*) rm -fv "$p";;
+    esac
+  done
+}
+
+[[ $# -eq 0 ]] && set -- Formula/*.rb
+for f in "$@"; do
+  p=$tmpd/$(basename "$f" .rb).patch
+  gendiff "$f" > "$p"
+  if [[ $(grep -Eh '^@@ ' "$p" | wc -l) -gt 1 ]]; then
+    # We have a candidate patch
+    cat "$p"
+    read -rp "$f : (o)verwrite with original, (L)eave as-is, create (p)atch? "
+    case "${REPLY,,}" in
+      o*) cp -av "$realdir/$f" "$f";;
+      p*) mkpatch "$p";;
+    esac
+  fi
+done
