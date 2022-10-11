@@ -279,12 +279,6 @@ cmd() {
   command "$@"
 }
 
-# Replace existing bottle block with fake ${my_os} one
-# This is a hack to force `brew test-bot` to fail properly
-fake_bottle_filter() {
-  "${funcs_dir}"/reset-bottle OS="${my_os}" SHA="${my_os_sha256}" COMMENT="fake ${my_os}"
-}
-
 # Check if formula needs rebottling
 needs_rebottling() {
   # If no ${my_os}: or all: bottle spec...
@@ -299,13 +293,24 @@ list_rebottling() {
   done
 }
 
+# remove_bottle_filter: Drop bottle block from stdin
+remove_bottle_filter() {
+  ${GNU_PREFIX}sed '/^  end/N; /^  bottle do/,/^  end/d'
+}
+
 # remove_bottle_block: Remove bottle block from formulae
 remove_bottle_block() {
   local f
   for f in "$@"; do
     info "Debottling $f"
-    sed '/^  end/N; /^  bottle do/,/^  end/d' < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
+    remove_bottle_filter < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
   done
+}
+
+# Replace existing bottle block with fake ${my_os} one
+# This is a hack to force `brew test-bot` to fail properly
+fake_bottle_filter() {
+  "${funcs_dir}"/reset-bottle OS="${my_os}" SHA="${my_os_sha256}" COMMENT="fake ${my_os}"
 }
 
 # fake_bottle_block: Reset bottle block to fake one
@@ -382,6 +387,8 @@ for myvar in GITHUB_API_TOKEN GITHUB_PACKAGES_TOKEN GITHUB_PACKAGES_USER GITHUB_
   [[ -n ${!mynewvar} ]] && export ${myvar}=${!mynewvar}
 done
 unset myvar mynewvar
+
+need_progs ${GNU_PREFIX}sed
 
 # Run this script to get the necessary source instructions
 # Ref: https://stackoverflow.com/a/28776166
