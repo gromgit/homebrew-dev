@@ -273,7 +273,7 @@ cmd() {
 
 # Replace existing bottle block with fake ${my_os} one
 # This is a hack to force `brew test-bot` to fail properly
-rebottle_filter() {
+fake_bottle_filter() {
   "${funcs_dir}"/reset-bottle OS="${my_os}" SHA="${my_os_sha256}" COMMENT="fake ${my_os}"
 }
 
@@ -291,13 +291,22 @@ list_rebottling() {
   done
 }
 
-# reset_bottle_block: Remove bottle block from formulae
-reset_bottle_block() {
+# remove_bottle_block: Remove bottle block from formulae
+remove_bottle_block() {
+  local f
+  for f in "$@"; do
+    info "Debottling $f"
+    sed '/^  end/N; /^  bottle do/,/^  end/d' < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
+  done
+}
+
+# fake_bottle_block: Reset bottle block to fake one
+fake_bottle_block() {
   local f
   for f in "$@"; do
     [[ -s $f ]] || continue
-    info "Stripping $f"
-    rebottle_filter < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
+    info "Fake-bottling $f"
+    fake_bottle_filter < "$f" > "$HOMEBREW_TEMP"/temp.rb && mv "$HOMEBREW_TEMP"/temp.rb "$f"
   done
 }
 

@@ -104,7 +104,7 @@ cmd rsync -avum "${rsync_opts[@]}" "$real"/ "$base"/
         cmd git commit -m "${fbase}: no rebuilding required" "$f"
       else
         # Reset this formula's bottle block
-        reset_bottle_block "$f"
+        remove_bottle_block "$f"
       fi
     else
       cmd git add "$f"

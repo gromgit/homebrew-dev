@@ -155,11 +155,11 @@ fi | while read -r fpath; do
   name=$(basename "$fpath" .rb)
   # Only select stuff that can be built (and isn't already built)
   if [[ -n "$force_run" ]]; then
-    reset_bottle_block "$fpath"
+    remove_bottle_block "$fpath"
     shortlist+=("$name")
   elif needs_rebottling "$fpath"; then
     if can_build "$fpath"; then
-      reset_bottle_block "$fpath"
+      remove_bottle_block "$fpath"
       shortlist+=("$name")
     else
       cmd rm -fr "${build_dir:?}/$name"
