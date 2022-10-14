@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Load dev standard shell library
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs less
+
+os=$(uname -s)
+if [[ -z $HOMEBREW_LOGS ]]; then
+  case "$os" in
+    Darwin) dir=$HOME/Library/Logs/Homebrew;;
+    Linux) for dir in $XDG_CACHE_HOME/Homebrew/Logs $HOME/.cache/Homebrew/Logs; do [[ -d $dir ]] && break; done;;
+    *) fatal "Unable to support '$os'";;
+  esac
+  if [[ -d $dir ]]; then
+    HOMEBREW_LOGS=$dir
+  else
+    fatal "Log directory '$dir' not found"
+  fi
+fi
+find "${HOMEBREW_LOGS}/$1" -type f -print0 | sort -z | xargs -0 less
