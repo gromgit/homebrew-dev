@@ -89,7 +89,7 @@ for f in "$@"; do
   echo -en ">>> $f${Tty_clear_to_eol}\r" >&2
   p=$tmpd/$(basename "$f" .rb).patch
   gendiff "$f" > "$p"
-  if [[ $(grep -Eh '^@@ ' "$p" | wc -l) -gt 1 ]]; then
+  if grep -qE '^@@ ' "$p"; then
     # We have a candidate patch
     while [[ -s $p ]]; do
       info "PATCH: $p"
