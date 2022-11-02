@@ -34,6 +34,19 @@ realdir=.real
 patchdir=.patches
 [[ -d $realdir/Formula ]] || fatal "Can't find $realdir"
 
+# Rewind real repo to same point as we started this "core evolution"
+if [[ -s .settings/last_commit ]]; then
+  if ! cmd git -C "$realdir" checkout $(<.settings/last_commit); then
+    while true; do
+      read -rp "Real repo reset failed, (c)ontinue anyway or (q)uit to investigate further? "
+      case "${REPLY,,}" in
+        q*) info "Quitting"; exit 0;;
+        c*) break;;
+      esac
+    done
+  fi
+fi
+
 # gendiff Formula/<formula>.rb
 gendiff() {
   local f=$1
@@ -91,3 +104,6 @@ for f in "$@"; do
     done
   fi
 done
+
+# Put real repo back on HEAD
+cmd git -C "$realdir" checkout master
