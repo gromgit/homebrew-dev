@@ -3,18 +3,17 @@ class Nuitka < Formula
 
   desc "Python compiler written in Python"
   homepage "https://nuitka.net"
-  url "https://github.com/Nuitka/Nuitka/archive/refs/tags/1.0.6.tar.gz"
-  sha256 "70a9a10799749a436c08f69eb7fd0e04a8dac80c4ff646177ae13cc3e1e5ac79"
+  url "https://github.com/Nuitka/Nuitka/archive/refs/tags/1.1.4.tar.gz"
+  sha256 "619f93eff88e7ff3ecef6a13ef8224085bbc588b7a3cc0a4704d7807c29884c0"
   license "Apache-2.0"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-1.0.6"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "f7d63e84505cb7f6549711b2f100b3d1a16e5d30629923d0311bafa9b620aee8"
-    sha256 cellar: :any_skip_relocation, monterey:       "77526e6ff211f799a6edce792217e369892e6275565af10539967b104d232be5"
-    sha256 cellar: :any_skip_relocation, big_sur:        "3b05e39eac8b549690db142863ceff20d5e21b91180de74046a65b1613c8a20f"
-    sha256 cellar: :any_skip_relocation, catalina:       "6bce0f226d0a12b4485a5f4aee599f34556d0afd25434e0961eaa651fd724449"
-    sha256 cellar: :any_skip_relocation, mojave:         "c02488c522243743478e8522cfcb8a4ce8d4d55f02ae9d23823b091425dd551f"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "c8c9fb2647125d88cacdd50cb792fb593aaf71e0d26975f4f3a504dbbdaabd4e"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-1.1.4"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "b1207ac0977ca645a7609c08d7692b39e6883ed3fde3d5c303ce6cb578720cda"
+    sha256 cellar: :any_skip_relocation, monterey:       "79040604af2621b614e72cd73e5c5901a224f00772c64fd060b0810638b60ee2"
+    sha256 cellar: :any_skip_relocation, big_sur:        "65b121fc873f3bb6fe4f9eabf517f1a0663b2add43d98370aca26544e4b08c1f"
+    sha256 cellar: :any_skip_relocation, catalina:       "123271ffef1abde2db4d85b40d1c77d04e375d490b319ea5a74a18f9aca9ff6a"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6fec6ff79dd6a11eaf169028cdad0931cdac458f72368a5aca2ea512d23ee607"
   end
 
   depends_on "llvm"
