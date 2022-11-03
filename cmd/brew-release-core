@@ -67,7 +67,14 @@ cd "$repo" || fatal "Can't cd into $repo"
 
 passed=()
 [[ $# -eq 0 ]] && set -- "$failed_file"
-if [[ -s $1 ]]; then
+if [[ $1 == *Formula/*.rb ]]; then
+  # List of formula files
+  failed=()
+  for i in "$@"; do
+    [[ $i =~ Formula/(.*)\.rb ]] && failed+=("${BASH_REMATCH[1]}")
+  done
+  failed+=("|")
+elif [[ -s $1 ]]; then
   # User-specified failed file
   failed_file=$1
   read_failed
