@@ -17,6 +17,7 @@ class VlangWeekly < Formula
     sha256 cellar: :any_skip_relocation, big_sur:        "fdf3a5e4f7041013dd8e01eb7072f91271585348158ec0c91b8de099d4222c0d"
     sha256 cellar: :any_skip_relocation, catalina:       "e25c7d3e1161e93ed8afc23d234ff7acc563dddfa40094837f3dd24ed866fad5"
     sha256 cellar: :any_skip_relocation, mojave:         "d4bb365e3200ce7b9ed44dbe211c20e4e7fae11e7ed9290a6d714ed644b2e104"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "b8d525ec035373d04007ce732a42ae8055ec5d217ff5e57b9ecd02df8c783090"
   end
 
   conflicts_with "vlang", because: "both install `v` binaries"
