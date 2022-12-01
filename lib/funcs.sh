@@ -198,7 +198,18 @@ my_xcode_ver=$(max_xcode_ver "$my_os")
 
 # Memoization for can_build()
 declare -A b_cache=()
-shopt -s lastpipe
+shopt -s lastpipe extglob
+
+# formula_names <formula_spec>...
+formula_names() {
+  local i; for i in "$@"; do
+    case "$i" in
+      *Formula/*.rb) if [[ $i =~ .*Formula/(.*)\.rb ]]; then echo "${BASH_REMATCH[1]}"; fi;;
+      \@new) git status -s | grep -E '^\?\? Formula/' | sed 's!.*/\(.*\)\.rb!\1!';;
+      +([^/.])) echo "$i";;
+    esac
+  done
+}
 
 # formula_path <formula>
 formula_path() {
