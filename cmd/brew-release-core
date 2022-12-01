@@ -9,23 +9,6 @@ failed_file=${HOMEBREW_TEMP:-/brew/tmp}/$(basename "$0").failed
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
 shopt -s extglob
 
-# formula_path <formula>
-formula_path() {
-  local fpath
-  if [[ -e Aliases/$1 ]]; then
-    # Check for alias
-    fpath=$(realpath --relative-base="$repo" -e Aliases/"$1" 2>/dev/null)
-  else
-    fpath=Formula/${1}.rb
-  fi
-  if [[ -s $fpath ]]; then
-    echo "$fpath"
-  else
-    error "formula_path: $1 not found"
-    return 1
-  fi
-}
-
 read_failed() {
   readarray -t failed < <(tr " " $'\n' < "$failed_file")
   local i; for i in "${failed[@]}"; do

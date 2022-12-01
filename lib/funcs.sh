@@ -200,6 +200,23 @@ my_xcode_ver=$(max_xcode_ver "$my_os")
 declare -A b_cache=()
 shopt -s lastpipe
 
+# formula_path <formula>
+formula_path() {
+  local fpath
+  if [[ -e Aliases/$1 ]]; then
+    # Check for alias
+    fpath=$(realpath --relative-base="$repo" -e Aliases/"$1" 2>/dev/null)
+  else
+    fpath=Formula/${1}.rb
+  fi
+  if [[ -s $fpath ]]; then
+    echo "$fpath"
+  else
+    error "formula_path: $1 not found"
+    return 1
+  fi
+}
+
 # can_build <formula.rb>
 can_build() {
   [[ -f $1 ]] || { warn "can_build: $1 not a file"; b_cache+=(["$name"]=1); return 1; }
