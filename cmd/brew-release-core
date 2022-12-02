@@ -70,7 +70,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
     elif [[ -n $interactive ]]; then
       # Ask user what to do next
       while true; do
-        read -rp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (r)etry now, (p)repend <formula>, (s)hell out, retry ${Tty_green}(l)${Tty_reset}ater, (d)rop, (q)uit? " ans
+        read -erp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (r)etry now, (p)repend <formula>, (s)hell out, retry ${Tty_green}(l)${Tty_reset}ater, (d)rop, (q)uit? " ans
         case "${ans,,}" in
           q*) exit 0;;
           r*) continue 2;;
@@ -102,7 +102,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
     failed=("${failed[@]:1}" "|")
     nfailed=$((${#failed[@]} - 1))
     if [[ $nfailed -gt 0 ]]; then
-      read -rp "${Tty_red}>>> ${Tty_reset}$nfailed formulae left to process, run again? (Y|n) "
+      read -erp "${Tty_red}>>> ${Tty_reset}$nfailed formulae left to process, run again? (Y|n) "
       [[ ${REPLY,,} == n* ]] && break
       write_failed -o
       # We force interactivity the second time around
