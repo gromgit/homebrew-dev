@@ -77,6 +77,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
           p*)
             f2=${ans:1}
             failed2=(); for f3 in $f2; do
+              f3=${f3//,}
               if [[ -s Formula/${f3}.rb ]]; then
                 failed2+=("${f3}")
               else
