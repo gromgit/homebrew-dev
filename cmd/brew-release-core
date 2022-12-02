@@ -5,8 +5,11 @@
 need_progs ${GNU_PREFIX}date ${GNU_PREFIX}stat
 
 repo=${REPO:-$(brew --repo homebrew/core)}
+optdir=$(brew --prefix)/opt
 failed_file=${HOMEBREW_TEMP:-/brew/tmp}/$(basename "$0").failed
 export HOMEBREW_GITHUB_API_TOKEN=${HOMEBREW_GITHUB_API_TOKEN:-${GITHUB_API_TOKEN}}
+# .tools/bin should contain ready tools like `gh` and `timelimit`
+[[ -d ${repo}/.tools/bin ]] && PATH=${repo}/.tools/bin:$PATH
 shopt -s extglob
 
 read_failed() {
@@ -67,6 +70,15 @@ while [[ ${#failed[@]} -gt 0 ]]; do
       # Yay, we can drop this
       passed+=("$f")
       failed=("${failed[@]:1}"); write_failed -o
+      if grep -q "$f" "$repo"/.tools/.list; then
+        # Save a copy of the upgraded tool(s)
+        for prog in "${optdir}/${f}/bin"/*; do
+          dest_prog=${repo}/.tools/bin/${prog##*/}
+          [[ $prog -nt $dest_prog ]] || continue
+          [[ -e $dest_prog ]] && cmd mv -fv "$dest_prog" "$dest_prog".bkup
+          cmd ln -fv "$prog" "$dest_prog"
+        done
+      fi
     elif [[ -n $interactive ]]; then
       # Ask user what to do next
       while true; do
