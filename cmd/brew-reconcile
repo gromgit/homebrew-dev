@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#:`brew reconcile` [options] [<formula> ...]
+#:    Reconcile forked core formulae against main core (default: all forked formulae)
+#:    `-f | --force` : Overwrite forked core on any differences
+
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs brew git lsof timelimit
+
+while true; do
+  case "$1" in
+    -f|--force) force_copy=1;;
+    *) break;;
+  esac
+  shift
+done
+
+core=$(brew --repo homebrew/core)
+cd "$core" || fatal "Unable to cd to $core"
+[[ -d .real/ ]] || fatal "No .real link to original core"
+[[ $# -eq 0 ]] && set -- Formula/*.rb
+for i in "$@"; do
+  [[ $i == Formula/*.rb ]] || i=Formula/${i}.rb
+  if [[ ! -s $i ]]; then
+    warn "Can't find $i, skipping"
+    continue
+  fi
+  echo "===== $i ====="
+  diff -uB <(sed '/^  bottle do/,/^  end/d' .real/"$i") <(sed '/^  bottle do/,/^  end/d' "$i") && continue
+  if [[ -n $force_copy ]] || { read -rp "Update? "; [[ ${REPLY,,} == y* ]] ; }; then
+    remove_bottle_filter < .real/"$i" > "$i"
+  fi
+done
