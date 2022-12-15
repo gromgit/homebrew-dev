@@ -82,7 +82,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
     elif [[ -n $interactive ]]; then
       # Ask user what to do next
       while true; do
-        read -erp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (r)etry now, (p)repend <formula>, (s)hell out, retry ${Tty_green}(l)${Tty_reset}ater, (d)rop, (q)uit? " ans
+        read -erp "${Tty_red}>>> ${Tty_blue}$f${Tty_reset} failed, (r)etry now, (p)repend <formula>, retry ${Tty_green}(l)${Tty_reset}ater, (d)rop, (e)dit list, (s)hell out, (q)uit? " ans
         case "${ans,,}" in
           q*) exit 0;;
           r*) continue 2;;
@@ -100,8 +100,9 @@ while [[ ${#failed[@]} -gt 0 ]]; do
             write_failed -o
             break
           ;;
-          s*) "$SHELL" -i;;
           d*) failed=("${failed[@]:1}"); write_failed -o; break;;
+          e*) write_failed -o; ${EDITOR:-vi} "$failed_file"; read_failed; break;;
+          s*) "$SHELL" -i;;
           l*) failed=("${failed[@]:1}" "$f"); write_failed -o; break;;
         esac
       done
