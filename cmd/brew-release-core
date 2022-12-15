@@ -93,7 +93,7 @@ while [[ ${#failed[@]} -gt 0 ]]; do
               if [[ -s Formula/${f3}.rb ]]; then
                 failed2+=("${f3}")
               else
-                warning "Formula ${Tty_green}${f3}${Tty_reset} not found, skipping."
+                warn "Formula ${Tty_green}${f3}${Tty_reset} not found, skipping."
               fi
             done
             failed=("${failed2[@]}" "${failed[@]}")
