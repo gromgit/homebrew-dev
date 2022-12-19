@@ -364,7 +364,7 @@ git_retry() {
   done
   while [[ $((tries-1)) -ge 0 ]]; do
     if cmd git "$@"; then
-      break
+      return 0
     else
       warn "Git failed, ${tries} tries left."
     fi
