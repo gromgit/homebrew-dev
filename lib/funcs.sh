@@ -362,7 +362,7 @@ git_retry() {
     esac
     shift
   done
-  while [[ $((tries-1)) -ge 0 ]]; do
+  while [[ $((--tries)) -ge 0 ]]; do
     if cmd git "$@"; then
       return 0
     else
