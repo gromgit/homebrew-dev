@@ -351,12 +351,33 @@ fake_bottle_block() {
   done
 }
 
+# git_retry: Retry Git command on failure
+# USAGE: git_retry [--tries=<n>] <git_args>...
+git_retry() {
+  local tries=5
+  while true; do
+    case "$1" in
+      --tries=*) tries=${1#*=};;
+      *) break;
+    esac
+    shift
+  done
+  while [[ $((tries-1)) -ge 0 ]]; do
+    if cmd git "$@"; then
+      break
+    else
+      warn "Git failed, ${tries} tries left."
+    fi
+  done
+  return 1 # we failed
+}
+
 # git_in: Run Git command in repo
 # USAGE: git_in <repo> <cmd> ...
 git_in() {
   local repo=$1; shift
   pushd "$repo" >/dev/null || fatal "Can't cd to '$repo'"
-  cmd git "$@"
+  git_retry "$@"
   popd >/dev/null || fatal "Can't popd"
 }
 
