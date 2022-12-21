@@ -26,8 +26,12 @@ cleanup() {
 err_rename() {
   local status=$?
   [[ -n $tmpdir ]] || return
-  mv "$tmpdir" "$tmpdir".b0rken
-  error "Release failed, temp dir moved to ${tmpdir}.b0rken"
+  if [[ -n $(\ls $tmpdir/) ]]; then
+    mv "$tmpdir" "$tmpdir".b0rken
+    error "Release failed, temp dir moved to ${tmpdir}.b0rken"
+  else
+    warn "$tmpdir empty"
+  fi
   exit "$status"
 }
 
