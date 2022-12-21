@@ -24,9 +24,11 @@ cleanup() {
 }
 
 err_rename() {
+  local status=$?
   [[ -n $tmpdir ]] || return
   mv "$tmpdir" "$tmpdir".b0rken
   error "Release failed, temp dir moved to ${tmpdir}.b0rken"
+  exit "$status"
 }
 
 jquery() {
@@ -70,8 +72,6 @@ while true; do
   shift
 done
 
-set -e
-
 for f in "$@"; do
 
   # fully-qualify path if needed
@@ -100,7 +100,7 @@ for f in "$@"; do
     fname=${BASH_REMATCH[3]}
     # First make sure the tap's up-to-date
     git_in "$repodir" pull
-    tmpdir=$(mktemp -d)
+    tmpdir=$(mktemp -p "${HOMEBREW_PREFIX}/tmp" -d "${fname}.XXXXXXXXXX")
     cd "$tmpdir"
 
     # Bump the version if needed
