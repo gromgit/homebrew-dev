@@ -86,6 +86,7 @@ mkpatch() {
 
 [[ $# -eq 0 ]] && set -- Formula/*.rb
 for f in "$@"; do
+  [[ $f == Formula/*.rb ]] || f=Formula/${f}.rb
   echo -en ">>> $f${Tty_clear_to_eol}\r" >&2
   p=$tmpd/$(basename "$f" .rb).patch
   gendiff "$f" > "$p"
