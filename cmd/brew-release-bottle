@@ -122,7 +122,7 @@ for f in "$@"; do
 
     # Bottle & merge with the formula
     echo "----- Bottling $f in $tmpdir -----"
-    cmd brew install --build-bottle "$f"
+    cmd brew install -d --build-bottle "$f"
     cmd brew info --json "$f" > ./.base_json
     fver=$(jquery .versions.stable)
     if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
