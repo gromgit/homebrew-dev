@@ -144,7 +144,7 @@ for f in "$@"; do
     [[ $root_url != "null" ]] || fatal "unable to determine root URL"
     cmd brew bottle --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
     git_in "$repodir" add Formula/"$fname".rb
-    cmd brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./*.json
+    cmd brew bottle --merge --write --root-url="${root_url}" "${keep_old[@]}" ./"$fname"*.json
 
     # Upload the new stuff
     echo "----- Uploading for $f -----"
