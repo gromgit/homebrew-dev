@@ -62,6 +62,7 @@ else
   failed=($(formula_names "$@") "|")
 fi
 
+readarray -t failed < <(dedup_list "${failed[@]}")
 while [[ ${#failed[@]} -gt 0 ]]; do
   f=${failed[0]}
   if [[ $f != "|" ]]; then
@@ -125,4 +126,5 @@ while [[ ${#failed[@]} -gt 0 ]]; do
       break
     fi
   fi
+  readarray -t failed < <(dedup_list "${failed[@]}")
 done
