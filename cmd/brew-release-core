@@ -53,7 +53,7 @@ cd "$repo" || fatal "Can't cd into $repo"
 
 passed=()
 [[ $# -eq 0 ]] && set -- "$failed_file"
-if [[ -s $1 ]]; then
+if [[ -s $1 ]] && ! grep -q Formula "$1"; then
   # User-specified failed file
   failed_file=$1
   read_failed
