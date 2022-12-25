@@ -146,8 +146,12 @@ else
     ;;
     *)
       for i in "$@"; do
-        # Expand wildcards
-        eval /bin/ls Formula/"$i".rb 2>/dev/null
+        # Expand wildcards if present
+        if [[ $i == *Formula/* ]]; then
+          eval /bin/ls "$i" 2>/dev/null
+        else
+          eval /bin/ls Formula/"$i".rb 2>/dev/null
+        fi
       done
     ;;
   esac
