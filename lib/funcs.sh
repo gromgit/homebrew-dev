@@ -448,17 +448,25 @@ need_progs ${GNU_PREFIX}sed
 # Run this script to get the necessary source instructions
 # Ref: https://stackoverflow.com/a/28776166
 (return 0 2>/dev/null) || {
-#U USAGE: $0 [`-sh`]
+#U USAGE: $0 [`-sh` [<script>]]
 #U   Development standard bash library (when sourced)
 #U   Output library `source` instructions (when run)
 #U   `-sh` = Add bash shebang to instructions
+#U   <script> = Write shebang to <script> and make it executable
   src_lib=../lib/funcs.sh
   case "$1" in
     -h|--help) usage 0;;
-    -sh) echo "#!/usr/bin/env bash";;
+    -sh)
+      [[ -n $2 ]] && {
+        touch "$2" || fatal "unable to create '$2'"
+        chmod +x "$2" || fatal "unable to make '$2' executable"
+        exec >"$2"
+      }
+      echo "#!/usr/bin/env bash"
+    ;;
   esac
   cat <<-EOF
-	# Load dev standard shell library
+	# Load development standard shell library
 	# shellcheck source=$src_lib
 	. "\$(dirname "\$0")/${src_lib}"
 	EOF
