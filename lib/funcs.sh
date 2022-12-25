@@ -85,6 +85,12 @@ need_progs() {
   fi
 }
 
+# dedup_list: deduplicate list of items
+# USAGE: readarray -t arr < <(dedup_list "${arr[@]}")
+dedup_list() {
+  printf '%s\n' "$@" | awk '!x[$0]++'
+}
+
 # deurlify: %-decode input strings
 # REF: https://en.wikipedia.org/wiki/Percent-encoding
 # USAGE: deurlify <str> ...
