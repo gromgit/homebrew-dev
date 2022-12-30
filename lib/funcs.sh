@@ -443,7 +443,7 @@ for myvar in GITHUB_API_TOKEN GITHUB_PACKAGES_TOKEN GITHUB_PACKAGES_USER GITHUB_
 done
 unset myvar mynewvar
 
-need_progs ${GNU_PREFIX}sed
+need_progs ${GNU_PREFIX}sed git timelimit
 
 # Run this script to get the necessary source instructions
 # Ref: https://stackoverflow.com/a/28776166
