@@ -369,7 +369,7 @@ git_retry() {
     shift
   done
   while [[ $((--tries)) -ge 0 ]]; do
-    if cmd git "$@"; then
+    if cmd timelimit -t 120 git "$@"; then
       return 0
     else
       warn "Git failed, ${tries} tries left."
