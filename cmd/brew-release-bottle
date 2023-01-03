@@ -46,6 +46,13 @@ for cmd in jq gh; do
   fi
 done
 
+# Temporarily turn off relocation for AArch64 Linux
+if [[ $(uname -sm) == "Linux aarch64" ]]; then
+  reloc_opts=(--skip-relocation)
+else
+  reloc_opts=()
+fi
+
 # Ref: https://github.com/Homebrew/brew/issues/13012#issuecomment-1073305666
 export HOMEBREW_BOTTLE_SUDO_PURGE=1
 
@@ -142,9 +149,9 @@ for f in "$@"; do
       fi
     fi
     [[ $root_url != "null" ]] || fatal "unable to determine root URL"
-    cmd brew bottle --skip-relocation --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
+    cmd brew bottle "${reloc_opts[@]}" --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
     git_in "$repodir" add Formula/"$fname".rb
-    cmd brew bottle --skip-relocation --merge --write --root-url="${root_url}" "${keep_old[@]}" ./"$fname"*.json
+    cmd brew bottle "${reloc_opts[@]}" --merge --write --root-url="${root_url}" "${keep_old[@]}" ./"$fname"*.json
 
     # Upload the new stuff
     echo "----- Uploading for $f -----"
