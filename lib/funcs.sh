@@ -48,27 +48,31 @@ export cache_root
 # fatal: Report fatal error
 # USAGE: fatal <msg> ...
 fatal() {
+  local opts=(); while [[ $1 == "-"* ]]; do opts+=("$1"); shift; done
   # shellcheck disable=SC2154 # msg_prefix is set externally
-  echo "${Tty_red}${msg_prefix}FATAL ERROR:${Tty_reset} $*" >&2
+  echo "${opts[@]}" "${Tty_red}${msg_prefix}FATAL ERROR:${Tty_reset} $*" >&2
   exit 1
 }
 
 # error: Report error
 # USAGE: error <msg> ...
 error() {
-  echo "${Tty_red}${msg_prefix}ERROR:${Tty_reset} $*" >&2
+  local opts=(); while [[ $1 == "-"* ]]; do opts+=("$1"); shift; done
+  echo "${opts[@]}" "${Tty_red}${msg_prefix}ERROR:${Tty_reset} $*" >&2
 }
 
 # warn: Report warning
 # USAGE: warn <msg> ...
 warn() {
-  echo "${Tty_blue}${msg_prefix}Warning:${Tty_reset} $*" >&2
+  local opts=(); while [[ $1 == "-"* ]]; do opts+=("$1"); shift; done
+  echo "${opts[@]}" "${Tty_blue}${msg_prefix}Warning:${Tty_reset} $*" >&2
 }
 
 # info: Informational message
 # USAGE: info <msg> ...
 info() {
-  echo "${Tty_green}${msg_prefix}Info:${Tty_reset} $*" >&2
+  local opts=(); while [[ $1 == "-"* ]]; do opts+=("$1"); shift; done
+  echo "${opts[@]}" "${Tty_green}${msg_prefix}Info:${Tty_reset} $*" >&2
 }
 
 # need_progs: Checks for command dependencies
