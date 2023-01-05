@@ -5,6 +5,7 @@
 #:    `-w` |`--wipe-bottles`     : Wipe existing `bottles` stanza
 #:    `-nr`|`--no-rebuild`       : Don't add `build` entry to `bottles` stanza
 #:    `-nc`|`--no-cleanup`       : Don't remove `formula` after bottling
+#:    `-ni`|`--no-install`       : Use pre-installed `formula` instead of rebuilding (*must* be built for bottling)
 #:    `-V` |`--bump-version` *ver* : Bump `formula` version to *ver*
 #:    `--root-url=`*url*         : Use *url* as common root URL for all formulae
 #:    `-nv`|`--no-url-version`   : Don't add version to root URL
@@ -73,6 +74,7 @@ while true; do
     -w|--wipe-bottles) wipe_bottles=1;;
     -nr|--no-rebuild) no_rebuild=1;;
     -nc|--no-cleanup) no_cleanup=1;;
+    -ni|--no-install) no_install=1;;
     -V|--bump-version) new_version=$2; shift;;
     --root-url=*) default_root_url=${1#*=};;
     --root-url) default_root_url=$2; shift;;
@@ -120,7 +122,9 @@ for f in "$@"; do
     fi
 
     # Clean out any existing installation
-    cmd brew rm --ignore-dependencies "$f" || true
+    if [[ -z $no_install ]]; then
+      cmd brew rm --ignore-dependencies "$f" || true
+    fi
 
     # Pre-test if needed
     if [[ -n "$pre_test" ]]; then
@@ -133,7 +137,7 @@ for f in "$@"; do
 
     # Bottle & merge with the formula
     echo "----- Bottling $f in $tmpdir -----"
-    cmd brew install -d --build-bottle "$f"
+    [[ -n $no_install ]] || cmd brew install -d --build-bottle "$f"
     cmd brew info --json "$f" > ./.base_json
     fver=$(jquery .versions.stable)
     if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
