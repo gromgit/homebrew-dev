@@ -165,12 +165,12 @@ for f in "$@"; do
         # We need to create it with this new file
         cmd gh release create "$tag" "$rf" -R "$real_ghrepo"
       fi
+      # HACK: if it's a versioned formula or sanitized tarball name, we need to edit the upload name manually
+      if [[ $fname == *@* || $rf == *\%* ]]; then
+        read -rp "Please edit release tarball in ${root_url/\/download\//\/tag\/}, then hit Return to continue: " </dev/tty
+      fi
     done
     git_in "$repodir" push 
-    # HACK: if it's a versioned formula or sanitized tarball name, we need to edit the upload name manually
-    if [[ $fname == *@* || $rf == *%* ]]; then
-      read -rp "Please edit release tarball in ${root_url/\/download\//\/tag\/}, then hit Return to continue: " </dev/tty
-    fi
 
     # Reinstall and test
     echo "----- Reinstalling & testing $f -----"
