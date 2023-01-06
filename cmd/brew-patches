@@ -30,7 +30,7 @@ while true; do
   shift
 done
 
-cd "$(brew --repo homebrew/core)" || fatal "Can't cd to tap '$tap'"
+cd "$(brew --repo "$tap")" || fatal "Can't cd to tap '$tap'"
 realdir=.real
 patchdir=.patches
 [[ -d $realdir/Formula ]] || fatal "Can't find $realdir"
