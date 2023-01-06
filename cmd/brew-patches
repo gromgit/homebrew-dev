@@ -27,6 +27,7 @@ while true; do
     --tap) tap=$2; shift;;
     *) break;;
   esac
+  shift
 done
 
 cd "$(brew --repo homebrew/core)" || fatal "Can't cd to tap '$tap'"
