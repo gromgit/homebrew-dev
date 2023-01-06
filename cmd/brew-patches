@@ -2,7 +2,8 @@
 #:`brew patches` [options] [*Formula/f.rb* ...]
 #:    Builds and releases local patch files for *Formula/f.rb*
 #:      (default: all formulae in core tap)
-#:    `--tap` *tap* : Process *tap* (default: homebrew/core)
+#:    `--tap` *tap*               : Process *tap* (default: homebrew/core)
+#:    `-c`|`--last-commit` *commit* : use *commit* as ref for patching
 # Load dev standard shell library
 # shellcheck source=../lib/funcs.sh
 . "$(dirname "$0")/../lib/funcs.sh"
@@ -25,6 +26,7 @@ done
 while true; do
   case "$1" in
     --tap) tap=$2; shift;;
+    -c|--last-commit) last_commit=$2; shift;;
     *) break;;
   esac
   shift
@@ -34,10 +36,11 @@ cd "$(brew --repo "$tap")" || fatal "Can't cd to tap '$tap'"
 realdir=.real
 patchdir=.patches
 [[ -d $realdir/Formula ]] || fatal "Can't find $realdir"
+[[ -z "$last_commit" && -s .settings/last_commit ]] && last_commit=$(<.settings/last_commit)
 
 # Rewind real repo to same point as we started this "core evolution"
-if [[ -s .settings/last_commit ]]; then
-  if ! cmd git -C "$realdir" checkout $(<.settings/last_commit); then
+if [[ -n $last_commit ]]; then
+  if ! cmd git -C "$realdir" checkout "$last_commit"; then
     while true; do
       read -rp "Real repo reset failed, (c)ontinue anyway or (q)uit to investigate further? "
       case "${REPLY,,}" in
