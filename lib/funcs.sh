@@ -333,7 +333,7 @@ list_rebottling() {
 
 # remove_bottle_filter: Drop bottle block from stdin
 remove_bottle_filter() {
-  ${GNU_PREFIX}sed '/^  end/N; /^  bottle do/,/^  end/d'
+  ${GNU_PREFIX}sed '/^  bottle do/,/^  end/d' | ${GNU_PREFIX}cat -s
 }
 
 # remove_bottle_block: Remove bottle block from formulae
@@ -447,7 +447,7 @@ for myvar in GITHUB_API_TOKEN GITHUB_PACKAGES_TOKEN GITHUB_PACKAGES_USER GITHUB_
 done
 unset myvar mynewvar
 
-need_progs ${GNU_PREFIX}sed git timelimit
+need_progs ${GNU_PREFIX}sed ${GNU_PREFIX}cat git timelimit
 
 # Run this script to get the necessary source instructions
 # Ref: https://stackoverflow.com/a/28776166
