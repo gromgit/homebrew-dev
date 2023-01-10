@@ -60,7 +60,7 @@ gendiff() {
       local f1=${tmpd}/a/${f} f2=${tmpd}/b/${f}
       mkdir -p "${f1%/*}" && remove_bottle_filter < "${realdir}/$f" > "$f1"
       mkdir -p "${f2%/*}" && remove_bottle_filter < "$f" > "$f2"
-      ( cd "$tmpd"; diff -u ?/"$f" )
+      ( cd "$tmpd"; diff -Bu ?/"$f" )
     else
       error "Original formula $f not found"
     fi
@@ -93,6 +93,8 @@ for f in "$@"; do
   [[ $f == Formula/*.rb ]] || f=Formula/${f}.rb
   echo -en ">>> $f${Tty_clear_to_eol}\r" >&2
   p=$tmpd/$(basename "$f" .rb).patch
+  # Skip if patch already up-to-date
+  [[ ${patchdir}/${p##*/} -nt $f ]] && continue
   gendiff "$f" > "$p"
   if grep -qE '^@@ ' "$p"; then
     # We have a candidate patch
