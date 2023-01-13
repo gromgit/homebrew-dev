@@ -162,12 +162,12 @@ for f in "$@"; do
     jq -r '.[].bottle.tags|.[]|"\(.local_filename) \(.filename)"' ./*.json | while read -r lf rf; do
       mv -v "$lf" "$rf"
       tag=${root_url##*/}
-      if cmd gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
+      if cmd_retry gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
         # Release already created
-        cmd gh release upload "$tag" "$rf" -R "$real_ghrepo" --clobber
+        cmd_retry gh release upload "$tag" "$rf" -R "$real_ghrepo" --clobber
       else
         # We need to create it with this new file
-        cmd gh release create "$tag" "$rf" -R "$real_ghrepo"
+        cmd_retry gh release create "$tag" "$rf" -R "$real_ghrepo"
       fi
       # HACK: if it's a versioned formula or sanitized tarball name, we need to edit the upload name manually
       if [[ $fname == *@* || $rf == *\%* ]]; then
