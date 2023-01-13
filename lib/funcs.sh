@@ -361,9 +361,9 @@ fake_bottle_block() {
   done
 }
 
-# git_retry: Retry Git command on failure
-# USAGE: git_retry [--tries=<n>] <git_args>...
-git_retry() {
+# cmd_retry: Retry Git command on failure
+# USAGE: cmd_retry [--tries=<n>] <cmd> <args>...
+cmd_retry() {
   local tries=5
   while true; do
     case "$1" in
@@ -373,10 +373,10 @@ git_retry() {
     shift
   done
   while [[ $((--tries)) -ge 0 ]]; do
-    if cmd timelimit -t 120 git "$@"; then
+    if cmd timelimit -t 120 "$@"; then
       return 0
     else
-      warn "Git failed, ${tries} tries left."
+      warn "Command failed, ${tries} tries left."
     fi
   done
   return 1 # we failed
@@ -387,7 +387,7 @@ git_retry() {
 git_in() {
   local repo=$1; shift
   pushd "$repo" >/dev/null || fatal "Can't cd to '$repo'"
-  git_retry "$@"
+  cmd_retry git "$@"
   popd >/dev/null || fatal "Can't popd"
 }
 
