@@ -5,8 +5,8 @@
 
 # shellcheck source=../lib/funcs.sh
 . "$(dirname "$0")/../lib/funcs.sh"
-need_progs brew git lsof timelimit rsync
-script_dir=$(dirname "$(readlink -e "$0")")
+need_progs brew git lsof timelimit rsync realpath
+script_dir=$(dirname "$(realpath -e "$0")")
 
 while true; do
   case "$1" in
