@@ -216,7 +216,7 @@ formula_names() {
     case "$i" in
       *Formula/*.rb) if [[ $i =~ .*Formula/(.*)\.rb ]]; then echo "${BASH_REMATCH[1]}"; fi;;
       \@new) git status -s | grep -E '^\?\? Formula/' | sed 's!.*/\(.*\)\.rb!\1!';;
-      +([^/.])) echo "$i";;
+      *) [[ -s Formula/${i}.rb ]] && echo "$i";;
     esac
   done
 }
