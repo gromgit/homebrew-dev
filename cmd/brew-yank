@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#:`brew yank` *formula* *version* *tap*
+#:    Extract version *version* of *formula* into *tap*
+#:    Useful if `brew extract` fails due to formula syntax issues
+
+. "$(dirname "$0")/../lib/funcs.sh"
+
+shopt -s lastpipe extglob
+
+# extract <hash> <formula> <ver> <tap>
+extract() {
+  set -e
+  local tapdir hash=$1 formula=$2 ver=$3 tap=$4 ignore_lines=""
+  tapdir="$(brew --repo "$tap")"
+  [[ -d ${tapdir}/Formula ]] || brew tap-new "$tap"
+  git show "${hash}:Formula/${formula}.rb" | while read -r; do
+    case "$REPLY" in
+      class\ *) [[ $REPLY =~ class\ (.*)\ \<\ Formula ]] && echo "class ${BASH_REMATCH[1]}AT${ver//.} < Formula";;
+      *(\ )bottle\ do*(\ )) ignore_lines=1;;
+      *(\ )end*(\ )) if [[ -n $ignore_lines ]]; then ignore_lines=""; else echo "$REPLY"; fi;;
+      *) if [[ -z "$ignore_lines" ]]; then echo "$REPLY"; fi;;
+    esac
+  done > "${tapdir}/Formula/${formula}@${ver}.rb" && info "Formula '$formula' version $ver written to: ${tapdir}/Formula/${formula}@${ver}.rb"
+}
+
+formula=$1
+ver=$2
+tap=$3
+
+cd "$(brew --repo homebrew/core)"
+[[ -s Formula/"$formula".rb ]] || warn "${Tty_cyan}${formula}${Tty_reset} no longer exists.
+The older version that you're extracting may no longer build on your system."
+git log --oneline -- Formula/"$formula".rb | while read -r h n v _; do
+  if [[ $n == "$formula" && $v == "$ver" ]]; then
+    extract "$h" "$n" "$v" "$tap"
+    exit $?
+  fi
+done
+error "Unable to find version $ver of $formula"

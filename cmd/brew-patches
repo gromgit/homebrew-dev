@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+#:`brew patches` [options] [*Formula/f.rb* ...]
+#:    Builds and releases local patch files for *Formula/f.rb*
+#:      (default: all formulae in core tap)
+#:    `--tap` *tap*               : Process *tap* (default: homebrew/core)
+#:    `-c`|`--last-commit` *commit* : use *commit* as ref for patching
+# Load dev standard shell library
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+tmpd=${HOMEBREW_TEMP:-/tmp}/$(basename "$0").$$
+mkdir -p "$tmpd"
+trap cleanup EXIT
+cleanup() {
+  if [[ -n $keep_tmp ]]; then
+    info "Keeping tmp dir $tmpd"
+  else
+    rm -fr "$tmpd"
+  fi
+}
+
+tap=homebrew/core
+for editor in $HOMEBREW_EDITOR $EDITOR $VISUAL; do
+  [[ -n $editor ]] || fatal "Unable to determine editor to use"
+done
+
+while true; do
+  case "$1" in
+    --tap) tap=$2; shift;;
+    -c|--last-commit) last_commit=$2; shift;;
+    *) break;;
+  esac
+  shift
+done
+
+cd "$(brew --repo "$tap")" || fatal "Can't cd to tap '$tap'"
+realdir=.real
+patchdir=.patches
+[[ -d $realdir/Formula ]] || fatal "Can't find $realdir"
+[[ -z "$last_commit" && -s .settings/last_commit ]] && last_commit=$(<.settings/last_commit)
+
+# Rewind real repo to same point as we started this "core evolution"
+if [[ -n $last_commit ]]; then
+  if ! cmd git -C "$realdir" checkout "$last_commit"; then
+    while true; do
+      read -rp "Real repo reset failed, (c)ontinue anyway or (q)uit to investigate further? "
+      case "${REPLY,,}" in
+        q*) info "Quitting"; exit 0;;
+        c*) break;;
+      esac
+    done
+  fi
+fi
+
+# gendiff Formula/<formula>.rb
+gendiff() {
+  local f=$1
+  if [[ -s $f ]]; then
+    if [[ -s ${realdir}/$f ]]; then
+      # Create bottle-less copies
+      local f1=${tmpd}/a/${f} f2=${tmpd}/b/${f}
+      mkdir -p "${f1%/*}" && remove_bottle_filter < "${realdir}/$f" > "$f1"
+      mkdir -p "${f2%/*}" && remove_bottle_filter < "$f" > "$f2"
+      ( cd "$tmpd"; diff -Bu ?/"$f" )
+    else
+      error "Original formula $f not found"
+    fi
+  else
+    error "Local formula $f not found"
+  fi
+}
+
+# mkpatch <patch_file>
+mkpatch() {
+  local p=$1
+  while [[ -s $p ]]; do
+    "$editor" "$p"
+    cat "$p"
+    read -rp "$p : (s)ave, (R)e-edit, (d)elete? "
+    case "${REPLY,,}" in
+      s*)
+        local p2=${patchdir}/${p##*/}
+        # Back up previous patch (if exists)
+        [[ -s $p2 ]] && mv -v "$p2" "$p2".$(date -r "$p2" +%Y%m%d.%H%M%S)
+        mv -v "$p" "$p2"
+      ;;
+      d*) rm -fv "$p";;
+    esac
+  done
+}
+
+[[ $# -eq 0 ]] && set -- Formula/*.rb
+for f in "$@"; do
+  [[ $f == Formula/*.rb ]] || f=Formula/${f}.rb
+  echo -en ">>> $f${Tty_clear_to_eol}\r" >&2
+  p=$tmpd/$(basename "$f" .rb).patch
+  # Skip if patch already up-to-date
+  [[ ${patchdir}/${p##*/} -nt $f ]] && continue
+  gendiff "$f" > "$p"
+  if grep -qE '^@@ ' "$p"; then
+    # We have a candidate patch
+    while [[ -s $p ]]; do
+      info "PATCH: $p"
+      cat "$p"
+      read -rp "${Tty_green}$f${Tty_reset} : (o)verwrite with original, (L)eave as-is, (e)dit side-by-side, create (p)atch? "
+      case "${REPLY,,}" in
+        o*) cp -av "$realdir/$f" "$f";;
+        e*) vim -O "$realdir/$f" "$f";;
+        p*) mkpatch "$p";;
+        *) break;;
+      esac
+    done
+  fi
+done
+
+# Put real repo back on HEAD
+cmd git -C "$realdir" checkout master

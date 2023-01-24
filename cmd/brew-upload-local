@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+#:`brew upload-local`
+#:    Upload built bottles & merge JSON into formulae
+
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs brew rsync gh jq timelimit
+
+my_os=$(os_name)
+core=$(brew --repo homebrew/core)
+build_dir=${cache_root}/build-core-${my_os}
+
+cd "$build_dir" || fatal "Can't cd into $build_dir"
+mkdir -p .done
+
+for j in */*.json; do
+  [[ -s $j ]] || continue
+  d="${j%/*}"
+  jq -r '
+  .[] | 
+    (.bottle |
+      (.tags | .[] | "\(.local_filename) \(.filename)"),
+      .root_url
+    ),
+    .formula.name,
+    .formula.pkg_version,
+    .formula.tap_git_path
+  ' "$j" | while read -r lf rf; do
+    read -r root_url
+    read -r formula
+    read -r pkg_version
+    read -r tap_git_path
+    if [[ $root_url =~ https://github.com/([^/]*/[^/]*)/.* ]]; then
+      real_ghrepo="${BASH_REMATCH[1]}"
+    else
+      warn "Unable to determine GH repo, skipping $d"
+      continue
+    fi
+    rf2=$(deurlify "$rf")
+    # HACK: urlify '#' again
+    if [[ $rf2 == *\#* ]]; then
+      rf=${rf2//\#/%23}
+    else
+      rf=$rf2
+    fi
+    [[ -s "$d/$lf" ]] && cmd mv -v "$d/$lf" "$d/$rf"
+    tag=${root_url##*/}
+    if cmd gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
+      # Release already created
+      cmd gh release upload "$tag" "$d/$rf" --clobber -R "$real_ghrepo"
+    else
+      # We need to create it with this new file
+      cmd gh release create "$tag" "$d/$rf" -R "$real_ghrepo"
+    fi && 
+    cmd git -C "$core" add "$tap_git_path" &&
+    cmd brew bottle --merge --write "$j" &&
+    cmd rsync -avm "$d"/ .done/"$d"/ && 
+    cmd rm -fr "$d" # &&
+    # cmd git -C "$core" add "$tap_git_path" &&
+    # cmd git -C "$core" commit -m "${formula}: update ${pkg_version} bottle" "$tap_git_path"
+    if [[ $rf != $rf2 ]]; then
+      read -rp "Please edit release tarball in ${root_url/\/download\//\/tag\/}, then hit Return to continue: " </dev/tty
+    fi
+  done
+done
+
+info "Cleaning up .done dir"
+find .done -type f -mtime +2 -exec rm -fv {} +
+
+cmd timelimit -t 300 -T 30 git -C "$core" push

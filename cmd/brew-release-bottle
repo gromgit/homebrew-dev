@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+#:`brew release-bottle` [options] *user/repo/formula* ...
+#:    Builds and releases bottle for *user/repo/formula*
+#:    `-t` |`--pre-test`         : Install and test `formula` before bottling
+#:    `-w` |`--wipe-bottles`     : Wipe existing `bottles` stanza
+#:    `-nr`|`--no-rebuild`       : Don't add `build` entry to `bottles` stanza
+#:    `-nc`|`--no-cleanup`       : Don't remove `formula` after bottling
+#:    `-ni`|`--no-install`       : Use pre-installed `formula` instead of rebuilding (*must* be built for bottling)
+#:    `-V` |`--bump-version` *ver* : Bump `formula` version to *ver*
+#:    `--root-url=`*url*         : Use *url* as common root URL for all formulae
+#:    `-nv`|`--no-url-version`   : Don't add version to root URL
+#:    `-fv`|`--force-url-version`: Add version to root URL
+
+# shellcheck source=/dev/null
+. "$(dirname "$0")/../lib/funcs.sh"
+
+trap cleanup EXIT
+trap err_rename ERR
+
+cleanup() {
+  [[ -n $tmpdir ]] || return
+  echo "----- Nuking $tmpdir -----"
+  rm -fr "$tmpdir"
+  tmpdir=""
+}
+
+err_rename() {
+  local status=$?
+  [[ -n $tmpdir ]] || return
+  if [[ -n $(\ls $tmpdir/) ]]; then
+    mv "$tmpdir" "$tmpdir".b0rken
+    error "Release failed, temp dir moved to ${tmpdir}.b0rken"
+  else
+    warn "$tmpdir empty"
+  fi
+  exit "$status"
+}
+
+jquery() {
+  jq -r ".[] | $*" ./.base_json
+}
+
+shopt -s lastpipe
+for cmd in jq gh; do
+  if ! command -v "$cmd" &>/dev/null; then
+    brew install "$cmd" || fatal "$cmd not available"
+  fi
+done
+
+# Temporarily turn off relocation for AArch64 Linux
+if [[ $(uname -sm) == "Linux aarch64" ]]; then
+  reloc_opts=(--skip-relocation)
+else
+  reloc_opts=()
+fi
+
+# Ref: https://github.com/Homebrew/brew/issues/13012#issuecomment-1073305666
+export HOMEBREW_BOTTLE_SUDO_PURGE=1
+
+tap_base=$(brew --repo homebrew/core); tap_base=${tap_base%/homebrew/homebrew-core}
+url_version=1
+
+rb2formula() {
+  if [[ -f $1 ]] && [[ $1 =~ ${tap_base}/([^/]+)/homebrew-([^/]+)/Formula/(.*)\.rb ]]; then
+    echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}"
+  else
+    return 1
+  fi
+}
+
+while true; do
+  case "$1" in
+    -t|--pre-test) pre_test=1;;
+    -w|--wipe-bottles) wipe_bottles=1;;
+    -nr|--no-rebuild) no_rebuild=1;;
+    -nc|--no-cleanup) no_cleanup=1;;
+    -ni|--no-install) no_install=1;;
+    -V|--bump-version) new_version=$2; shift;;
+    --root-url=*) default_root_url=${1#*=};;
+    --root-url) default_root_url=$2; shift;;
+    -nv|--no-url-version) url_version="";;
+    -fv|--force-url-version) url_version=1;;
+    *) break;;
+  esac
+  shift
+done
+
+for f in "$@"; do
+
+  # fully-qualify path if needed
+  if [[ $f != */* ]]; then
+    # shellcheck disable=SC2046 # we WANT word-splitting here
+    f2=$(rb2formula $(\ls "${tap_base}"/*/*/Formula/"${f}".rb 2>/dev/null))
+    if [[ -n "$f2" ]]; then
+      f=$f2
+    else
+      error "Can't find formula ${f}, skipping."
+      continue
+    fi
+  fi
+
+  if [[ $f =~ ([^/]+)/([^/]+)/([^/]+) ]]; then
+    tap=${BASH_REMATCH[1]}/${BASH_REMATCH[2]}
+    ghrepo=${BASH_REMATCH[1]}/homebrew-${BASH_REMATCH[2]}
+    repodir=$(brew --repo "$tap")
+    if [[ -s ${repodir}/.gromgit/repo ]]; then
+      real_ghrepo=$(<"${repodir}/.gromgit/repo")
+    elif [[ -s ${repodir}/.settings/repo ]]; then
+      real_ghrepo=$(<"${repodir}/.settings/repo")
+    else
+      real_ghrepo=$ghrepo
+    fi
+    fname=${BASH_REMATCH[3]}
+    # First make sure the tap's up-to-date
+    git_in "$repodir" pull
+    tmpdir=$(mktemp -d "${HOMEBREW_PREFIX}/tmp/${fname}.XXXXXXXXXX")
+    cd "$tmpdir"
+
+    # Bump the version if needed
+    if [[ -n $new_version ]]; then
+      cmd brew bump-formula-pr --force --write-only --version "$new_version" "$f"
+    fi
+
+    # Clean out any existing installation
+    if [[ -z $no_install ]]; then
+      cmd brew rm --ignore-dependencies "$f" || true
+    fi
+
+    # Pre-test if needed
+    if [[ -n "$pre_test" ]]; then
+      # Let's make sure it'll pass first
+      echo "----- Testing $f -----"
+      cmd brew install -s "$f"
+      cmd brew test "$f"
+      cmd brew rm --ignore-dependencies "$f"
+    fi
+
+    # Bottle & merge with the formula
+    echo "----- Bottling $f in $tmpdir -----"
+    [[ -n $no_install ]] || cmd brew install -d --build-bottle "$f"
+    cmd brew info --json "$f" > ./.base_json
+    fver=$(jquery .versions.stable)
+    if [[ -n "$wipe_bottles" || $(jquery '.bottle | length') == "0" ]]; then
+      # New bottle section
+      root_url=${default_root_url:-"https://github.com/${real_ghrepo}/releases/download/${fname}${url_version:+-${fver}}"}
+      keep_old=()
+    else
+      root_url=$(jquery .bottle.stable.root_url)
+      if [[ -n $no_rebuild ]]; then
+        keep_old=(--no-rebuild)
+      else
+        keep_old=(--keep-old)
+      fi
+    fi
+    [[ $root_url != "null" ]] || fatal "unable to determine root URL"
+    cmd brew bottle "${reloc_opts[@]}" --verbose --json --root-url="${root_url}" "${keep_old[@]}" "$f"
+    git_in "$repodir" add Formula/"$fname".rb
+    cmd brew bottle "${reloc_opts[@]}" --merge --write --root-url="${root_url}" "${keep_old[@]}" ./"$fname"*.json
+
+    # Upload the new stuff
+    echo "----- Uploading for $f -----"
+    jq -r '.[].bottle.tags|.[]|"\(.local_filename) \(.filename)"' ./*.json | while read -r lf rf; do
+      mv -v "$lf" "$rf"
+      tag=${root_url##*/}
+      if cmd_retry gh release view "$tag" -R "$real_ghrepo" >&/dev/null; then
+        # Release already created
+        cmd_retry gh release upload "$tag" "$rf" -R "$real_ghrepo" --clobber
+      else
+        # We need to create it with this new file
+        cmd_retry gh release create "$tag" "$rf" -R "$real_ghrepo"
+      fi
+      # HACK: if it's a versioned formula or sanitized tarball name, we need to edit the upload name manually
+      if [[ $fname == *@* || $rf == *\%* ]]; then
+        read -rp "Please edit release tarball in ${root_url/\/download\//\/tag\/}, then hit Return to continue: " </dev/tty
+      fi
+    done
+    git_in "$repodir" push 
+
+    # Reinstall and test
+    echo "----- Reinstalling & testing $f -----"
+    cmd brew rm --ignore-dependencies "$f"
+    cmd brew install "$f"
+    cmd brew test "$f"
+
+    # Clean up if necessary
+    if [[ -z "$(brew uses --installed "$f")" || -z "$no_cleanup" ]]; then
+      echo "----- Cleaning up $f -----"
+      cmd brew rm "$f"
+    fi
+
+    cd - &> /dev/null
+    cleanup
+  else
+    echo "WARNING: $f not in <user>/<tap>/<formula> format, skipping."
+  fi
+
+done
+
+[[ -n $no_cleanup ]] || brew autoremove

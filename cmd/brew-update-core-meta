@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Load dev standard shell library
+# shellcheck source=../lib/funcs.sh
+. "$(dirname "$0")/../lib/funcs.sh"
+need_progs jq
+tmpd=${HOMEBREW_TEMP:-/tmp}/$(basename "$0").$$
+mkdir -p "$tmpd"
+trap 'rm -fr "$tmpd"' EXIT
+
+repo=$(brew --repo homebrew/core)
+taproot=$(dirname "$(dirname "$repo")")
+info "Dumping all formulae info to JSON"
+cmd brew info --eval-all --json | tee /tmp/all.json > "$tmpd"/all.json
+cd "$taproot"
+for metadir in */*/.meta; do
+  [[ -d $metadir ]] || continue
+  metabase=${metadir}/formula
+  tap_dir=$(dirname "$metadir")
+  alias_dir=${tap_dir}/Aliases
+  tap=${tap_dir/homebrew-}
+  # Update aliases lookup table
+  declare -A aliases=()
+  for a in "$alias_dir"/*; do
+    if b=$(readlink "$a"); then
+      aliases+=(["$(basename "$a")"]="$(basename "$b" .rb)")
+    fi
+  done
+  info "Update JSON dir for $tap"
+  cmd jq '[.[]|select(.tap=="'"$tap"'")]' "$tmpd"/all.json > "$metabase".json
+  info "Updating formula TSV for $tap"
+  cmd jq -r '.[]|
+    [.full_name,.versions.stable,.revision,.disabled,([.requirements[]|.name]|join(" ")),(.dependencies|join(" ")),(.build_dependencies|join(" "))]|
+    join("'$'\t''")
+  ' "$metabase".json | cat <(echo -e "name\tversion\trevision\tdisabled\trequirements\tdependencies\tbuild_dependencies") - > "$metabase".tsv
+  info "Updating tsort data for $tap"
+  cmd jq -r '.[]|[[.full_name],.dependencies,.build_dependencies]|flatten|join(" ")' "$metabase".json | sed "s@^${tap}/@@" | while read -r l; do
+    flist=()
+    for formula in $l; do
+      [[ -n ${aliases[${formula}]} ]] && formula=${aliases[${formula}]}
+      flist+=("$formula")
+    done
+    echo "${flist[*]}"
+  done > "$metabase".tsort
+done
