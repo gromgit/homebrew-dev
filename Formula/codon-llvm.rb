@@ -10,6 +10,7 @@ class CodonLlvm < Formula
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-llvm-2022.09.23"
     sha256 cellar: :any, arm64_monterey: "43121f4b5730a13e3770b3867dde5a965c185f8ab4f81a1878f0f4f81f0c74ce"
+    sha256 cellar: :any, big_sur:        "8885ea7a5ac48bf77f04af84f7c510defae20cafd36f4ef8ca6f18fd86444981"
   end
 
   depends_on "cmake" => :build
