@@ -8,7 +8,8 @@ class Codon < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-0.15.5"
-    sha256 cellar: :any_skip_relocation, x86_64_linux: "7073cb2269d2cfb74989dd2c77ec9b7e8cafdc17be7969e7cfdc20775e6303d2"
+    sha256 cellar: :any,                 arm64_monterey: "60a1b6745ee0888e1a58ef0a3edd5663107352c9a2e87f0ac9de3158bd1069dc"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "7073cb2269d2cfb74989dd2c77ec9b7e8cafdc17be7969e7cfdc20775e6303d2"
   end
 
   depends_on "cmake" => :build
