@@ -7,12 +7,14 @@ class Codon < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-0.15.5"
-    sha256 cellar: :any, arm64_monterey: "12a348759f27b4853a907f5292464fb5a1228b9280dc5c1a422a6ed55bc26c03"
-    sha256 cellar: :any, monterey:       "9f9b2d74d23777f42fab806b9f089afa613ced898deba0ca9a7620fd1d52cdc1"
+    sha256 cellar: :any,                 arm64_monterey: "12a348759f27b4853a907f5292464fb5a1228b9280dc5c1a422a6ed55bc26c03"
+    sha256 cellar: :any,                 monterey:       "9f9b2d74d23777f42fab806b9f089afa613ced898deba0ca9a7620fd1d52cdc1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9f4db3c470274ee719821739a37b6b4a50a73a342098b17e3746a96f1ef681f0"
   end
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
+  depends_on "python@3.11" => :build
 
   # Codon uses a custom LLVM fork
   resource "llvm-project" do
