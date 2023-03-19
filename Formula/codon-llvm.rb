@@ -4,12 +4,12 @@ class CodonLlvm < Formula
   url "https://github.com/exaloop/llvm-project.git",
       tag:      "codon",
       revision: "55b0b8fa1c9f9082b535628fc9fa6313280c0b9a"
-  version "2023.09.23"
+  version "2022.09.23"
   license "BUSL-1.1"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-llvm-2023.09.23"
-    sha256 cellar: :any, arm64_monterey: "ac65652ef686553ed1a5d63d1576a576576c99edaafcd483f587f8eb58f2b516"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-llvm-2022.09.23"
+    sha256 cellar: :any, arm64_monterey: "43121f4b5730a13e3770b3867dde5a965c185f8ab4f81a1878f0f4f81f0c74ce"
   end
 
   depends_on "cmake" => :build
