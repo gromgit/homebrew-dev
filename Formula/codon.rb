@@ -3,13 +3,12 @@ class Codon < Formula
   homepage "https://docs.exaloop.io/codon"
   url "https://github.com/exaloop/codon/archive/refs/tags/v0.15.5.tar.gz"
   sha256 "f17e79800c50adf5bf58cc4d374ef4304455011454cda37d3a2d9e837677f2ae"
+  revision 1
   license "BUSL-1.1"
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-0.15.5"
-    sha256 cellar: :any,                 arm64_monterey: "12a348759f27b4853a907f5292464fb5a1228b9280dc5c1a422a6ed55bc26c03"
-    sha256 cellar: :any,                 monterey:       "9f9b2d74d23777f42fab806b9f089afa613ced898deba0ca9a7620fd1d52cdc1"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "9f4db3c470274ee719821739a37b6b4a50a73a342098b17e3746a96f1ef681f0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "7073cb2269d2cfb74989dd2c77ec9b7e8cafdc17be7969e7cfdc20775e6303d2"
   end
 
   depends_on "cmake" => :build
@@ -50,6 +49,8 @@ class Codon < Formula
                     *args, *std_cmake_args
     system "cmake", "--build", "build", "--config", "Release"
     system "cmake", "--install", "build"
+    # custom LLVM not needed during runtime
+    rm_rf libexec
   end
 
   test do
