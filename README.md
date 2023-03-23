@@ -4,6 +4,7 @@ This is where I maintain development-related formulae that don't make the cut fo
 
 These formulae will disappear as and when they appear in core:
 * [ABS](https://www.abs-lang.org/): the joy of shell scripting
+* [Codon](https://docs.exaloop.io/codon/): Python-to-native-code compiler
 * [Kitty](https://sw.kovidgoyal.net/kitty/): my preferred terminal emulator
 * [Mint](https://www.mint-lang.com/): a programming language for single-page web applications
 * ~[TopShell](https://github.com/topshell-language/topshell): a purely functional, reactive scripting language~ WIP
