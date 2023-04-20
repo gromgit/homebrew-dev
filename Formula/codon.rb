@@ -1,28 +1,26 @@
 class Codon < Formula
   desc "High-performance, zero-overhead, extensible Python compiler using LLVM"
   homepage "https://docs.exaloop.io/codon"
-  url "https://github.com/exaloop/codon/archive/refs/tags/v0.15.5.tar.gz"
-  sha256 "f17e79800c50adf5bf58cc4d374ef4304455011454cda37d3a2d9e837677f2ae"
-  revision 2
+  url "https://github.com/exaloop/codon/archive/refs/tags/v0.16.0.tar.gz"
+  sha256 "9b02e270d1c1a684667a57291987c376aef9fc1730cf5b2c44a36f6dbc26bdcb"
   license "BUSL-1.1"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-0.15.5"
-    sha256 cellar: :any, arm64_monterey: "8697937cac4d9fe46e1f445d400c039a512c0b300f8b11eab0850aa19137413f"
-    sha256 cellar: :any, big_sur:        "6bb78345d7eabc5ec9434d009bf0e1327ebfff5c4c9d0467cc8d78bd0310d6e1"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-0.16.0"
+    sha256 cellar: :any, arm64_monterey: "175718b71a64c59a8d3e2f8ab09988524cc834e26b027228f372dc96eeee980b"
   end
 
   depends_on "cmake" => :build
-  depends_on "ninja" => :build
   depends_on "gromgit/dev/codon-llvm" => :build
+  depends_on "ninja" => :build
 
   def install
     llvm_cmakedir = Utils.safe_popen_read(Formula["gromgit/dev/codon-llvm"].bin/"llvm-config", "--cmakedir").strip
     args = %W[
-    -DCMAKE_BUILD_TYPE=Release
-    -DLLVM_DIR=#{llvm_cmakedir}
-    -DCMAKE_C_COMPILER=clang
-    -DCMAKE_CXX_COMPILER=clang++
+      -DCMAKE_BUILD_TYPE=Release
+      -DLLVM_DIR=#{llvm_cmakedir}
+      -DCMAKE_C_COMPILER=clang
+      -DCMAKE_CXX_COMPILER=clang++
     ]
     system "cmake", "-S", ".", "-B", "build", "-G", "Ninja",
                     *args, *std_cmake_args
