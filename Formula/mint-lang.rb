@@ -1,13 +1,13 @@
 class MintLang < Formula
   desc "Programming language for single-page web applications"
   homepage "https://www.mint-lang.com/"
-  url "https://github.com/mint-lang/mint/archive/0.16.1.tar.gz"
-  sha256 "eed441ff3b0224d55984664a26d250a0c3c08cf5b0f1252b9af010a1a5fe5973"
+  url "https://github.com/mint-lang/mint/archive/0.17.0.tar.gz"
+  sha256 "aff7b1aaa2a1ef1eeb4d4810c013fa29542b5c0040887880c5fd26e46d8812b9"
   license "BSD-3-Clause"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.16.1"
-    sha256 cellar: :any, arm64_monterey: "bc870fcdf0babb59c9cabddb005c3207502e5887aec61ff45f754c834bebe90c"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.17.0"
+    sha256 cellar: :any, big_sur: "d33aa1c57c80bca92881cc8546c5660f93551eb51cac12d63e4ec57a406be864"
   end
   head do
     url "https://github.com/mint-lang/mint.git"
