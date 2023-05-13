@@ -5,6 +5,7 @@ class OdinLatest < Formula
   version "dev-2023-05"
   sha256 "4c4b2da50ae672f2a5c55335cf1752b3eb7ccc1a0c85f0d9651dbe1bbc5717f2"
   license "BSD-2-Clause"
+  revision 1
   head "https://github.com/odin-lang/Odin.git", branch: "master"
 
   livecheck do
@@ -14,7 +15,7 @@ class OdinLatest < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2023-05"
-    sha256 cellar: :any, arm64_monterey: "1143770a0670c2d74557f34575734dcb08f62be0f289549be90a8463450ba385"
+    sha256 cellar: :any, arm64_monterey: "85170e0d2a6bbd078d5be561e3b972e9a68e765a52da19cbcef010452991d861"
   end
 
   depends_on "llvm@14"
@@ -31,8 +32,7 @@ class OdinLatest < Formula
     # Issue ref: https://github.com/odin-lang/Odin/issues/1772
     unless build.head?
       inreplace "build_odin.sh" do |s|
-        s.gsub! "dev-$(date +\"%Y-%m\")", "dev-#{version}"
-        s.gsub!(/GIT_SHA=\$\([^)]*\)/, "GIT_SHA=unknown")
+        s.gsub! "dev-$(date +\"%Y-%m\")", version.to_s
       end
     end
 
