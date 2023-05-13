@@ -17,6 +17,7 @@ class OdinLatest < Formula
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/odin-latest-dev-2023-05"
     sha256 cellar: :any, arm64_monterey: "85170e0d2a6bbd078d5be561e3b972e9a68e765a52da19cbcef010452991d861"
     sha256 cellar: :any, monterey:       "60d5b6ce9e456ab3aeb2a6cab349f8e0312f57e42ed9daf7d2cbd63f37b76100"
+    sha256 cellar: :any, big_sur:        "95021910d5a2153e57a1246926b2e0c922b11cf9062b3f9e7472ea3e3affe9fb"
   end
 
   depends_on "llvm@14"
