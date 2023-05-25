@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/weekly.2023.19.tar.gz"
-  sha256 "5ffd9d3012301a62fd9d13699344c4bbd06811642074e2bcceaced668cf1eeab"
+  url "https://github.com/vlang/v/archive/weekly.2023.21.tar.gz"
+  sha256 "5392afe42b307963a80fe2457810138bc7bbdc98df976d2267a74040e53c4a30"
   license "MIT"
 
   livecheck do
@@ -11,9 +11,8 @@ class VlangWeekly < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2023.19"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "01c4ff508d97636649af1ca93661c0a015201091d9ac66527c1f61da4fab2269"
-    sha256 cellar: :any_skip_relocation, monterey:       "fb3f39f4adebe262ec4efbe48edccdaece7d2597890016947db794a010968b15"
+    root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2023.21"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "fa4b61621f49bfb6537572106a0980712163b63fd36da89f7ed58ebb5fbb65df"
   end
 
   conflicts_with "vlang", because: "both install `v` binaries"
