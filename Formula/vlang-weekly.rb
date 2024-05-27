@@ -59,23 +59,23 @@ end
 
 __END__
 diff --git a/vlib/builtin/builtin_d_gcboehm.c.v b/vlib/builtin/builtin_d_gcboehm.c.v
-index 0a13b64..23fca2b 100644
+index 2ace0b5..9f874c2 100644
 --- a/vlib/builtin/builtin_d_gcboehm.c.v
 +++ b/vlib/builtin/builtin_d_gcboehm.c.v
-@@ -31,12 +31,12 @@ $if dynamic_boehm ? {
+@@ -37,13 +37,8 @@ $if dynamic_boehm ? {
  } $else {
  	$if macos || linux {
  		#flag -DGC_BUILTIN_ATOMIC=1
 -		#flag -I @VEXEROOT/thirdparty/libgc/include
 -		$if (prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32) {
-+		#flag -I @PREFIX@/include
-+		$if (!macos && prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32) {
- 			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
+-			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
 -			#flag @VEXEROOT/thirdparty/libgc/gc.o
-+			#flag @PREFIX@/lib/libgc.a
- 		} $else {
+-		} $else {
 -			#flag @VEXEROOT/thirdparty/tcc/lib/libgc.a
-+			#flag @PREFIX@/lib/libgc.a
- 		}
+-		}
++		#flag -I @PREFIX@/include
++		#flag @PREFIX@/lib/libgc.a
  		$if macos {
  			#flag -DMPROTECT_VDB=1
+ 		}
+
