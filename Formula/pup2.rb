@@ -1,10 +1,11 @@
 class Pup2 < Formula
   desc "Parse HTML at the command-line (2nd generation)"
   homepage "https://github.com/gromgit/pup"
-  url "https://github.com/gromgit/pup/archive/v0.4.1.tar.gz"
+  url "https://github.com/gromgit/pup/archive/refs/tags/v0.4.1.tar.gz"
   sha256 "939de10adb673381074e5210994b83e024905a232217380a162152aac534df67"
   license "MIT"
   head "https://github.com/gromgit/pup.git", branch: "master"
+  revision 1
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/pup2-0.4.1"
@@ -16,7 +17,6 @@ class Pup2 < Formula
   end
 
   depends_on "go" => :build
-  depends_on "gox" => :build
 
   def install
     ENV["GOPATH"] = buildpath
@@ -24,12 +24,9 @@ class Pup2 < Formula
     dir = buildpath/"src/github.com/gromgit/pup"
     dir.install buildpath.children
 
-    os = OS.kernel_name.downcase
-    arch = Hardware::CPU.intel? ? "amd64" : Hardware::CPU.arch.to_s
-
     cd dir do
-      system "gox", "-arch", arch, "-os", os, "./..."
-      bin.install "pup_#{os}_#{arch}" => "pup2"
+      system "go", "build", "."
+      bin.install "pup" => "pup2"
     end
 
     prefix.install_metafiles dir
