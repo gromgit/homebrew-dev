@@ -16,9 +16,9 @@ class VlangWeekly < Formula
     sha256 cellar: :any_skip_relocation, arm64_monterey: "4244de56675e0aa3fc530c490e2891ca63e9d95c590e420d5870ee397d9c1b8b"
   end
 
-  conflicts_with "vlang", because: "both install `v` binaries"
-
   depends_on "bdw-gc"
+
+  conflicts_with "vlang", because: "both install `v` binaries"
 
   # upstream discussion, https://github.com/vlang/v/issues/16776
   # macport patch commit, https://github.com/macports/macports-ports/commit/b3e0742a
@@ -26,12 +26,12 @@ class VlangWeekly < Formula
 
   def install
     inreplace "vlib/builtin/builtin_d_gcboehm.c.v", "@PREFIX@", Formula["bdw-gc"].opt_prefix
-    %w[up self].each { |cmd|
+    %w[up self].each do |cmd|
       (buildpath/"cmd/tools/v#{cmd}.v").delete
       (buildpath/"cmd/tools/v#{cmd}.v").write <<~EOS
         println('ERROR: `v #{cmd}` is disabled. Use `brew upgrade #{name}` to update V.')
       EOS
-    }
+    end
 
     system "make"
     system "./v", "-prod", "-o", "v", "cmd/v"
