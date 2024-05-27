@@ -9,7 +9,8 @@ class Pup2 < Formula
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/pup2-0.4.1"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "a6d08531683f2a4a6d091b4a1cded0ece435346fe6ff6689f081e2d2fdd8cfac"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:   "a6d08531683f2a4a6d091b4a1cded0ece435346fe6ff6689f081e2d2fdd8cfac"
+    sha256 cellar: :any_skip_relocation, arm64_monterey: "df4ecec8938945ae5205129c1b0bd9854bee2c66afba64712df3e3254160146c"
   end
 
   depends_on "go" => :build
