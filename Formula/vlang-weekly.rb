@@ -14,6 +14,7 @@ class VlangWeekly < Formula
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2024.22"
     sha256 cellar: :any_skip_relocation, arm64_sonoma:   "6db7d691e38bebb4777f0d3930189561e515a7e6cd872db0d785fead9c9f39de"
     sha256 cellar: :any_skip_relocation, arm64_monterey: "4244de56675e0aa3fc530c490e2891ca63e9d95c590e420d5870ee397d9c1b8b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:   "30fb68c42e6deed1a116eab7a8adaf952dd1be4f4e5847268a434b2878a364b0"
   end
 
   depends_on "bdw-gc"
@@ -70,7 +71,8 @@ index 0a13b64..23fca2b 100644
 +		#flag -I @PREFIX@/include
 +		$if (!macos && prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32) {
  			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
- 			#flag @VEXEROOT/thirdparty/libgc/gc.o
+-			#flag @VEXEROOT/thirdparty/libgc/gc.o
++			#flag @PREFIX@/lib/libgc.a
  		} $else {
 -			#flag @VEXEROOT/thirdparty/tcc/lib/libgc.a
 +			#flag @PREFIX@/lib/libgc.a
