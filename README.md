@@ -11,7 +11,7 @@ These formulae will disappear as and when they appear in core:
 * [Umka](https://github.com/vtereshkov/umka-lang): a statically typed embeddable scripting language
 
 These formulae track bleeding-edge releases of the corresponding core formulae:
-* [`odin-latest`](https://github.com/odin-lang/Odin): latest dev releases of `odin`
+* ~[`odin-latest`](https://github.com/odin-lang/Odin): latest dev releases of `odin`~ core now tracks dev releases
 * [`vlang-weekly`](https://github.com/vlang/v): weekly updates to `vlang`
 
 ## How do I install these formulae?
