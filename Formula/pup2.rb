@@ -4,8 +4,8 @@ class Pup2 < Formula
   url "https://github.com/gromgit/pup/archive/refs/tags/v0.4.1.tar.gz"
   sha256 "939de10adb673381074e5210994b83e024905a232217380a162152aac534df67"
   license "MIT"
-  head "https://github.com/gromgit/pup.git", branch: "master"
   revision 1
+  head "https://github.com/gromgit/pup.git", branch: "master"
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/pup2-0.4.1"
