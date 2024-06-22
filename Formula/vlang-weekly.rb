@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/refs/tags/weekly.2024.22.tar.gz"
-  sha256 "dd32d36dd85758a1f64fbbad8c9d42ef6384ed4e0a4e786fc170268bcd370975"
+  url "https://github.com/vlang/v/archive/refs/tags/weekly.2024.25.tar.gz"
+  sha256 "bcacb5b9e5c8cae0a85e63de2c8d826384c429458a1ce504aa7dcb7cedd03410"
   license "MIT"
 
   livecheck do
@@ -18,6 +18,9 @@ class VlangWeekly < Formula
   end
 
   depends_on "bdw-gc"
+  on_linux do
+    depends_on "libx11"
+  end
 
   conflicts_with "vlang", because: "both install `v` binaries"
 
