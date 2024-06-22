@@ -11,10 +11,9 @@ class VlangWeekly < Formula
   end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/vlang-weekly-2024.22"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:   "6db7d691e38bebb4777f0d3930189561e515a7e6cd872db0d785fead9c9f39de"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "4244de56675e0aa3fc530c490e2891ca63e9d95c590e420d5870ee397d9c1b8b"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "30fb68c42e6deed1a116eab7a8adaf952dd1be4f4e5847268a434b2878a364b0"
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any_skip_relocation, ventura:      "bcfb8ec4d1c6398012b8b0fe74feac18d3b0d1b0e0426eb6e12d8226e699a29f"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "513ee8633acf5687dbc95b549e46cb152bbc7b3b34ae21b8482c570642331b97"
   end
 
   depends_on "bdw-gc"
