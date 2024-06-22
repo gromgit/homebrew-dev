@@ -1,7 +1,7 @@
 class Kitty < Formula
   desc "Cross-platform, fast, feature full, GPU based terminal emulator"
   homepage "https://sw.kovidgoyal.net/kitty/"
-  url "https://github.com/kovidgoyal/kitty/archive/v0.19.3.tar.gz"
+  url "https://github.com/kovidgoyal/kitty/archive/refs/tags/v0.19.3.tar.gz"
   sha256 "28fc5de9b8934174801aa7d95c5a6f4c878a7e93eea15cdf06d9c982e1cd2fec"
   license "GPL-3.0-only"
 

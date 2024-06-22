@@ -1,7 +1,7 @@
 class Nsxiv < Formula
   desc "Neo Simple X Image Viewer"
   homepage "https://nsxiv.codeberg.page/"
-  url "https://codeberg.org/nsxiv/nsxiv/archive/v32.tar.gz"
+  url "https://codeberg.org/nsxiv/nsxiv/archive/refs/tags/v32.tar.gz"
   sha256 "49ef1eb775ef6c34f55dada7a3f446c9c5c6773c9e208509ffef27a656338a90"
   license "GPL-2.0-or-later"
   head "https://codeberg.org/nsxiv/nsxiv.git", branch: "master"
