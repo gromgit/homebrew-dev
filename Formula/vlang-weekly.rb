@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/refs/tags/weekly.2024.25.tar.gz"
-  sha256 "bcacb5b9e5c8cae0a85e63de2c8d826384c429458a1ce504aa7dcb7cedd03410"
+  url "https://github.com/vlang/v/archive/refs/tags/weekly.2025.07.tar.gz"
+  sha256 "574de42ee1666fa96b24456216c0b3fbd4b0b2821fe8076dc3d9e80145f87802"
   license "MIT"
 
   livecheck do
@@ -25,10 +25,10 @@ class VlangWeekly < Formula
 
   # upstream discussion, https://github.com/vlang/v/issues/16776
   # macport patch commit, https://github.com/macports/macports-ports/commit/b3e0742a
-  patch :DATA
+  # patch :DATA
 
   def install
-    inreplace "vlib/builtin/builtin_d_gcboehm.c.v", "@PREFIX@", Formula["bdw-gc"].opt_prefix
+    # inreplace "vlib/builtin/builtin_d_gcboehm.c.v", "@PREFIX@", Formula["bdw-gc"].opt_prefix
     %w[up self].each do |cmd|
       (buildpath/"cmd/tools/v#{cmd}.v").delete
       (buildpath/"cmd/tools/v#{cmd}.v").write <<~EOS
@@ -58,26 +58,26 @@ class VlangWeekly < Formula
     assert_equal "Hello, World!", shell_output("./test").chomp
   end
 end
-
-__END__
-diff --git a/vlib/builtin/builtin_d_gcboehm.c.v b/vlib/builtin/builtin_d_gcboehm.c.v
-index 2ace0b5..9f874c2 100644
---- a/vlib/builtin/builtin_d_gcboehm.c.v
-+++ b/vlib/builtin/builtin_d_gcboehm.c.v
-@@ -37,13 +37,8 @@ $if dynamic_boehm ? {
- } $else {
- 	$if macos || linux {
- 		#flag -DGC_BUILTIN_ATOMIC=1
--		#flag -I @VEXEROOT/thirdparty/libgc/include
--		$if (prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32) {
--			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
--			#flag @VEXEROOT/thirdparty/libgc/gc.o
--		} $else {
--			#flag @VEXEROOT/thirdparty/tcc/lib/libgc.a
--		}
-+		#flag -I @PREFIX@/include
-+		#flag @PREFIX@/lib/libgc.a
- 		$if macos {
- 			#flag -DMPROTECT_VDB=1
- 		}
-
+#
+# __END__
+# diff --git a/vlib/builtin/builtin_d_gcboehm.c.v b/vlib/builtin/builtin_d_gcboehm.c.v
+# index 2ace0b5..9f874c2 100644
+# --- a/vlib/builtin/builtin_d_gcboehm.c.v
+# +++ b/vlib/builtin/builtin_d_gcboehm.c.v
+# @@ -37,13 +37,8 @@ $if dynamic_boehm ? {
+#  } $else {
+#  	$if macos || linux {
+#  		#flag -DGC_BUILTIN_ATOMIC=1
+# -		#flag -I @VEXEROOT/thirdparty/libgc/include
+# -		$if (prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32) {
+# -			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
+# -			#flag @VEXEROOT/thirdparty/libgc/gc.o
+# -		} $else {
+# -			#flag @VEXEROOT/thirdparty/tcc/lib/libgc.a
+# -		}
+# +		#flag -I @PREFIX@/include
+# +		#flag @PREFIX@/lib/libgc.a
+#  		$if macos {
+#  			#flag -DMPROTECT_VDB=1
+#  		}
+#
