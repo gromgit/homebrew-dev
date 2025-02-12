@@ -16,7 +16,7 @@ class VlangWeekly < Formula
     sha256 cellar: :any_skip_relocation, x86_64_linux: "513ee8633acf5687dbc95b549e46cb152bbc7b3b34ae21b8482c570642331b97"
   end
 
-  depends_on "bdw-gc"
+  depends_on "bdw-gc" => :build
   on_linux do
     depends_on "libx11"
   end
