@@ -41,7 +41,7 @@ class VlangWeekly < Formula
     system "./v", "-prod", "build-tools"
 
     # clean up unnecessary stuff
-    %w[thirdparty/tcc/.git].each { |d| (buildpath/d).rmtree }
+    %w[thirdparty/tcc/.git].each { |d| rm_r(buildpath/d) }
     (buildpath/"cmd/tools/.disable_autorecompilation").write <<~EOS
       This is just a placeholder to tell V not to recompile any of its own tools.
     EOS
