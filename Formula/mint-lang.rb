@@ -8,9 +8,10 @@ class MintLang < Formula
   head "https://github.com/mint-lang/mint.git", branch: "master"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/mint-lang-0.17.0"
-    sha256 cellar: :any, arm64_monterey: "4ad06596901d25d31a9ab01cf6e8dcbc922834c73ad2edc5bac64187f10a146c"
-    sha256 cellar: :any, big_sur:        "d33aa1c57c80bca92881cc8546c5660f93551eb51cac12d63e4ec57a406be864"
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any,                 arm64_sonoma: "b1ebb8aaad33b6cc9e1297760b847752346a0a489105eeab8307644e49a80600"
+    sha256 cellar: :any,                 ventura:      "71999c4bb88d0f8c83934b06235ea7a943bee84059d337d742ece0d2594f0868"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "3900e47e220ab9bc5ace6f1220c7df3056d9b6f06b15935226816740041bb91f"
   end
 
   depends_on "crystal" => :build
