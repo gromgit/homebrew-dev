@@ -2,9 +2,9 @@ class CodonLlvm < Formula
   desc "Custom LLVM required to build Codon"
   homepage "https://github.com/exaloop/llvm-project"
   url "https://github.com/exaloop/llvm-project.git",
-      tag:      "codon-17.0.6",
-      revision: "c5a1d86495d28ab045258f120a8e2c9f3ef67a3b"
-  version "2024.01.30"
+      tag:      "codon-15.0.1",
+      revision: "7ea1b7bf4fca5bef3d14b46192257d195c9ba422"
+  version "2023.09.18"
   license "Apache-2.0" => { with: "LLVM-exception" }
 
   bottle do
@@ -18,18 +18,28 @@ class CodonLlvm < Formula
   depends_on "python@3.13" => :build
 
   def install
-    args = %w[
+    llvm_args = %w[
       -DCMAKE_BUILD_TYPE=Release
       -DLLVM_INCLUDE_TESTS=OFF
       -DLLVM_ENABLE_RTTI=ON
       -DLLVM_ENABLE_ZLIB=OFF
       -DLLVM_ENABLE_TERMINFO=OFF
       -DLLVM_TARGETS_TO_BUILD=all
+      -DLLVM_ENABLE_LIBEDIT=OFF
     ]
-    system "cmake", "-S", "llvm", "-B", "build", "-G", "Ninja",
-                    *args, *std_cmake_args
-    system "cmake", "--build", "build"
-    system "cmake", "--install", "build"
+    system "cmake", "-S", "llvm", "-B", "build-llvm", "-G", "Ninja",
+                    *llvm_args, *std_cmake_args
+    system "cmake", "--build", "build-llvm"
+    system "cmake", "--install", "build-llvm"
+    clang_args = %w[
+      -DCMAKE_BUILD_TYPE=Release
+      -DLLVM_INCLUDE_TESTS=OFF
+      -DLLVM_ENABLE_LIBEDIT=OFF
+    ]
+    system "cmake", "-S", "clang", "-B", "build-clang", "-G", "Ninja",
+                    *clang_args, *std_cmake_args
+    system "cmake", "--build", "build-clang"
+    system "cmake", "--install", "build-clang"
   end
 
   def caveats
