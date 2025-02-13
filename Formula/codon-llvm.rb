@@ -58,9 +58,8 @@ class CodonLlvm < Formula
         assert !lib.end_with?(".dylib"), "expected abs path when lib reported as .dylib"
       else
         p = Pathname.new(lib)
-        if p.extname == ".tbd" || p.extname == ".dylib"
-          assert p.absolute?, "expected abs path when lib reported as .tbd or .dylib"
-        end
+        e = [".tbd", ".dylib"]
+        assert p.absolute?, "expected abs path when lib reported as .tbd or .dylib" if e.include?(p.extname)
       end
     end
   end
