@@ -1,8 +1,8 @@
 class MintLang < Formula
   desc "Programming language for single-page web applications"
   homepage "https://www.mint-lang.com/"
-  url "https://github.com/mint-lang/mint/archive/refs/tags/0.17.0.tar.gz"
-  sha256 "aff7b1aaa2a1ef1eeb4d4810c013fa29542b5c0040887880c5fd26e46d8812b9"
+  url "https://github.com/mint-lang/mint/archive/refs/tags/0.22.0.tar.gz"
+  sha256 "7527f720b449d0336c785b7319d20d911a5fb588397f42b6252c8c813fe5deeb"
   license "BSD-3-Clause"
 
   head "https://github.com/mint-lang/mint.git", branch: "master"
@@ -14,10 +14,11 @@ class MintLang < Formula
   end
 
   depends_on "crystal" => :build
+  depends_on "bdw-gc"
   depends_on "libevent"
   depends_on "libxml2"
-  depends_on "openssl@1.1"
-  depends_on "pcre"
+  depends_on "openssl@3"
+  depends_on "pcre2"
   depends_on "zlib"
 
   conflicts_with "mint", because: "both install `mint` binaries"
