@@ -2,10 +2,10 @@ class CodonLlvm < Formula
   desc "Custom LLVM required to build Codon"
   homepage "https://github.com/exaloop/llvm-project"
   url "https://github.com/exaloop/llvm-project.git",
-      tag:      "codon",
-      revision: "55b0b8fa1c9f9082b535628fc9fa6313280c0b9a"
-  version "2022.09.23"
-  license "BUSL-1.1"
+      tag:      "codon-17.0.6",
+      revision: "c5a1d86495d28ab045258f120a8e2c9f3ef67a3b"
+  version "2024.01.30"
+  license "Apache-2.0" => { with: "LLVM-exception" }
 
   bottle do
     root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-llvm-2022.09.23"
@@ -15,7 +15,7 @@ class CodonLlvm < Formula
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
-  depends_on "python@3.11" => :build
+  depends_on "python@3.13" => :build
 
   def install
     args = %w[
