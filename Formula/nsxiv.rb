@@ -7,9 +7,10 @@ class Nsxiv < Formula
   head "https://codeberg.org/nsxiv/nsxiv.git", branch: "master"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nsxiv-30"
-    rebuild 1
-    sha256 cellar: :any_skip_relocation, x86_64_linux: "321b5a9310ab612a967af6c6c81fb1258bf665ec13ab0901cc555a2d49678cd5"
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any,                 arm64_sonoma: "ae6660b5f46a073d861d7238949cd6e23d0997a165d81c8b316dedaf3a63d18a"
+    sha256 cellar: :any,                 ventura:      "22e7b1d4c9cffa35a657559d77122e76e95745ada7a68326a48c9e3e72a3ebda"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "443f057eb16c87ed01a3b4c03138b076e08a30565e292ff32f5152488f24d9f7"
   end
 
   depends_on "giflib"
