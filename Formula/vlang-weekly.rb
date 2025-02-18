@@ -24,10 +24,6 @@ class VlangWeekly < Formula
 
   conflicts_with "vlang", because: "both install `v` binaries"
 
-  # upstream discussion, https://github.com/vlang/v/issues/16776
-  # macport patch commit, https://github.com/macports/macports-ports/commit/b3e0742a
-  # patch :DATA
-
   def install
     # inreplace "vlib/builtin/builtin_d_gcboehm.c.v", "@PREFIX@", Formula["bdw-gc"].opt_prefix
     %w[up self].each do |cmd|
@@ -59,26 +55,3 @@ class VlangWeekly < Formula
     assert_equal "Hello, World!", shell_output("./test").chomp
   end
 end
-#
-# __END__
-# diff --git a/vlib/builtin/builtin_d_gcboehm.c.v b/vlib/builtin/builtin_d_gcboehm.c.v
-# index 2ace0b5..9f874c2 100644
-# --- a/vlib/builtin/builtin_d_gcboehm.c.v
-# +++ b/vlib/builtin/builtin_d_gcboehm.c.v
-# @@ -37,13 +37,8 @@ $if dynamic_boehm ? {
-#  } $else {
-#  	$if macos || linux {
-#  		#flag -DGC_BUILTIN_ATOMIC=1
-# -		#flag -I @VEXEROOT/thirdparty/libgc/include
-# -		$if (prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32) {
-# -			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
-# -			#flag @VEXEROOT/thirdparty/libgc/gc.o
-# -		} $else {
-# -			#flag @VEXEROOT/thirdparty/tcc/lib/libgc.a
-# -		}
-# +		#flag -I @PREFIX@/include
-# +		#flag @PREFIX@/lib/libgc.a
-#  		$if macos {
-#  			#flag -DMPROTECT_VDB=1
-#  		}
-#
