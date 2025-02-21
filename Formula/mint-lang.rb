@@ -32,7 +32,7 @@ class MintLang < Formula
 
   test do
     system "#{bin}/mint", "init", "test-app"
-    assert_predicate testpath/"test-app/source/Main.mint", :exist?
+    assert_path_exists testpath/"test-app/source/Main.mint"
     (testpath/"test-app").cd do
       port = free_port
       pid = fork do
