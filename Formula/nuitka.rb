@@ -8,12 +8,10 @@ class Nuitka < Formula
   license "Apache-2.0"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/nuitka-1.1.4"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "b1207ac0977ca645a7609c08d7692b39e6883ed3fde3d5c303ce6cb578720cda"
-    sha256 cellar: :any_skip_relocation, monterey:       "79040604af2621b614e72cd73e5c5901a224f00772c64fd060b0810638b60ee2"
-    sha256 cellar: :any_skip_relocation, big_sur:        "65b121fc873f3bb6fe4f9eabf517f1a0663b2add43d98370aca26544e4b08c1f"
-    sha256 cellar: :any_skip_relocation, catalina:       "123271ffef1abde2db4d85b40d1c77d04e375d490b319ea5a74a18f9aca9ff6a"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "6fec6ff79dd6a11eaf169028cdad0931cdac458f72368a5aca2ea512d23ee607"
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma: "1c6d47e5f6d907695a9b74c0caba19a5bcd4be3da05057f635eba1d09a22c426"
+    sha256 cellar: :any_skip_relocation, ventura:      "321f8eed0bb17b24785b08cb5776627f0d6c74e1a5ae75db2337943c7c195b86"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "4aceb289207ce28a8202b80104fa0355e608379367893bbc4069ddcc4795f558"
   end
 
   depends_on "ccache"
