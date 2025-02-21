@@ -8,12 +8,10 @@ class Umka < Formula
   head "https://github.com/gromgit/umka-lang.git", branch: "master"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/umka-0.8"
-    sha256 cellar: :any,                 arm64_monterey: "e8816579c40a29b3b1ab1a8dc57734f54c67b78a3ea538aed88ffce02304789d"
-    sha256 cellar: :any,                 monterey:       "18e53a1194ff4f60876837b7d00a95ffcb264fca99851a6818fde357f12fa12c"
-    sha256 cellar: :any,                 big_sur:        "95a76e7f6c535b0058acc0795e03b32bf7eef515a79a667d624fb147a3df44e0"
-    sha256 cellar: :any,                 catalina:       "bdfa0622a6a591fbb274f8dcd0e244632b5586a10c39c057d2a0f4a942723a51"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:   "fabf6bef6755984805bd3f9854835be30e28119c997c5e2060f59f93b20751ac"
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any,                 arm64_sonoma: "d76c66a17b96034c373216ce3a9daabe6882e7304d27b58359342884e76da6d9"
+    sha256 cellar: :any,                 ventura:      "14e2a8a15a4247f1dbcf90f890e048e0cce1ac7e19e50ba1909ccf2800f7f339"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "d3cd753a40e2a6087ae3a9069450a85cf9fcdf35df52644972aeb671556cf5b3"
   end
 
   def install
