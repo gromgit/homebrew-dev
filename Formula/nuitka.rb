@@ -9,9 +9,9 @@ class Nuitka < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "1c6d47e5f6d907695a9b74c0caba19a5bcd4be3da05057f635eba1d09a22c426"
-    sha256 cellar: :any_skip_relocation, ventura:      "321f8eed0bb17b24785b08cb5776627f0d6c74e1a5ae75db2337943c7c195b86"
-    sha256 cellar: :any_skip_relocation, x86_64_linux: "4aceb289207ce28a8202b80104fa0355e608379367893bbc4069ddcc4795f558"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma: "196143712ca81e37ea6c41e907a7dc0a69b439bc71b8d8f3a95308e3b44fac5a"
+    sha256 cellar: :any_skip_relocation, ventura:      "cfd3a06476134351130403be70f302f51861cd64d317298362feb990daa5e8f9"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "6c37db2a1e769162c68325d3cb408f772108303c5ede79ff60f6ea5a8ff04495"
   end
 
   depends_on "ccache"
