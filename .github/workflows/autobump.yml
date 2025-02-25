@@ -1,7 +1,7 @@
 name: "Autobump specific formulae"
 on:
   schedule:
-  - cron: "17 2-23/6 * * *"
+  - cron: "17 2-23/4 * * *"
 
 jobs:
   autobump:
