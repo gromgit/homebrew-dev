@@ -11,7 +11,8 @@ jobs:
       uses: dawidd6/action-homebrew-bump-formula@v4
       with:
         # Required, custom personal GitHub access token with only the 'public_repo' scope enabled
-        token: ${{secrets.AUTOBUMP_TOKEN}}
+        # token: ${{secrets.AUTOBUMP_TOKEN}}
+        token : ${{ github.token }}
         # Optional, will commit with this user name
         user_name: gromgit
         # Optional, will commit with this user email
