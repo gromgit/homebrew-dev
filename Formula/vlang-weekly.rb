@@ -7,7 +7,8 @@ class VlangWeekly < Formula
 
   livecheck do
     url :stable
-    regex(/^weekly\.(\d+(?:\.\d+)+)$/i)
+    strategy :github_latest
+    regex(/weekly\.(\d+(?:\.\d+)+)$/i)
   end
 
   bottle do
