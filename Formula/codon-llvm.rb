@@ -2,9 +2,9 @@ class CodonLlvm < Formula
   desc "Custom LLVM required to build Codon"
   homepage "https://github.com/exaloop/llvm-project"
   url "https://github.com/exaloop/llvm-project.git",
-      tag:      "codon",
-      revision: "55b0b8fa1c9f9082b535628fc9fa6313280c0b9a"
-  version "2022.09.23"
+      tag:      "codon-15.0.1",
+      revision: "7ea1b7bf4fca5bef3d14b46192257d195c9ba422"
+  version "2023.09.18"
   license "BUSL-1.1"
 
   bottle do
@@ -15,15 +15,19 @@ class CodonLlvm < Formula
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
-  depends_on "python@3.11" => :build
+  depends_on "python@3.13" => :build
 
   def install
     args = %w[
       -DCMAKE_BUILD_TYPE=Release
       -DLLVM_INCLUDE_TESTS=OFF
+      -DLLVM_ENABLE_PROJECTS=clang
       -DLLVM_ENABLE_RTTI=ON
       -DLLVM_ENABLE_ZLIB=OFF
       -DLLVM_ENABLE_TERMINFO=OFF
+      -DLLVM_ENABLE_LIBXML2=OFF
+      -DLLVM_ENABLE_LIBEDIT=OFF
+      -DLLVM_ENABLE_ZSTD=OFF
       -DLLVM_TARGETS_TO_BUILD=all
     ]
     system "cmake", "-S", "llvm", "-B", "build", "-G", "Ninja",
