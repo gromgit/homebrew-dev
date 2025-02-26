@@ -8,9 +8,10 @@ class CodonLlvm < Formula
   license "BUSL-1.1"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-dev/releases/download/codon-llvm-2022.09.23"
-    sha256 cellar: :any, arm64_monterey: "43121f4b5730a13e3770b3867dde5a965c185f8ab4f81a1878f0f4f81f0c74ce"
-    sha256 cellar: :any, big_sur:        "8885ea7a5ac48bf77f04af84f7c510defae20cafd36f4ef8ca6f18fd86444981"
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any,                 arm64_sonoma: "682fc14767a5c3a8c8fcc17b63ca17428493aace7fe7ec3fa74ba1ef5d7412df"
+    sha256 cellar: :any,                 ventura:      "7fa9a8c8c1c4e63ee55ef8bc7b7b9ac3c4e939da17e0b9e27f2421fbfe74ff3b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "5ada579c04e71c9fd72961989b6aa0946703d0e8286125a1d6d9246df0513a56"
   end
 
   depends_on "cmake" => :build
