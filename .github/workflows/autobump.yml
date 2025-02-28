@@ -19,7 +19,7 @@ jobs:
         # Optional, will create tap repo fork in organization
         # org: ORG
         # Bump all outdated formulae in this tap
-        # tap: gromgit/dev
+        tap: gromgit/dev
         # Bump only these formulae if outdated
         formula: mint-lang,umka,vlang-weekly
         # Optional, if don't want to check for already open PRs
