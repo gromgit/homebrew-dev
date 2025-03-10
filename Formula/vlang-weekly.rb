@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/refs/tags/weekly.2025.10.tar.gz"
-  sha256 "80a2542819e9ef594994ac89b589e776af4647d501248ea30db88914ec1c7c32"
+  url "https://github.com/vlang/v/archive/refs/tags/weekly.2025.11.tar.gz"
+  sha256 "a9c969caa620b87a665d5cfdb869920cae0587ffd7b6343aee0f4211f345fc90"
   license "MIT"
 
   livecheck do
@@ -18,7 +18,8 @@ class VlangWeekly < Formula
     sha256 cellar: :any_skip_relocation, x86_64_linux: "a7ccf60e3ef3ea7ffd43465839bef9a3e2dfe32a30143432d165da92d87fb6be"
   end
 
-  depends_on "bdw-gc" => :build
+  depends_on "pkgconf" => :build
+  depends_on "bdw-gc"
   on_linux do
     depends_on "libx11"
   end
@@ -26,7 +27,6 @@ class VlangWeekly < Formula
   conflicts_with "vlang", because: "both install `v` binaries"
 
   def install
-    # inreplace "vlib/builtin/builtin_d_gcboehm.c.v", "@PREFIX@", Formula["bdw-gc"].opt_prefix
     %w[up self].each do |cmd|
       (buildpath/"cmd/tools/v#{cmd}.v").delete
       (buildpath/"cmd/tools/v#{cmd}.v").write <<~EOS
@@ -35,8 +35,8 @@ class VlangWeekly < Formula
     end
 
     system "make"
-    system "./v", "-prod", "-o", "v", "cmd/v"
-    system "./v", "-prod", "build-tools"
+    system "./v", "-showcc", "-v", "-prod", "-d", "dynamic_boehm", "-o", "v", "cmd/v"
+    system "./v", "-showcc", "-v", "-prod", "-d", "dynamic_boehm", "build-tools"
 
     # clean up unnecessary stuff
     %w[thirdparty/tcc/.git].each { |d| rm_r(buildpath/d) }
@@ -46,7 +46,7 @@ class VlangWeekly < Formula
 
     libexec.install "cmd", "thirdparty", "v", "v.mod", "vlib"
     bin.install_symlink libexec/"v"
-    pkgshare.install "examples", "tutorials"
+    pkgshare.install "bench", "examples", "tutorials"
     doc.install Dir["doc/*"]
   end
 
