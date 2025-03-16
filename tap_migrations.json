@@ -1,5 +1,6 @@
 {
   "nsxiv": "gromgit/tools/nsxiv",
   "nuitka": "homebrew/core/nuitka",
-  "odin-latest": "homebrew/core/odin"
+  "odin-latest": "homebrew/core/odin",
+  "umka": "homebrew/core/umka-lang"
 }

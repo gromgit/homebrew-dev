@@ -8,7 +8,7 @@ These formulae will disappear as and when they appear in core:
 * [Kitty](https://sw.kovidgoyal.net/kitty/): my preferred terminal emulator
 * [Mint](https://www.mint-lang.com/): a programming language for single-page web applications
 * ~[TopShell](https://github.com/topshell-language/topshell): a purely functional, reactive scripting language~ WIP
-* [Umka](https://github.com/vtereshkov/umka-lang): a statically typed embeddable scripting language
+* ~[Umka](https://github.com/vtereshkov/umka-lang): a statically typed embeddable scripting language~ core now tracks dev releases
 
 These formulae track bleeding-edge releases of the corresponding core formulae:
 * ~[`odin-latest`](https://github.com/odin-lang/Odin): latest dev releases of `odin`~ core now tracks dev releases
