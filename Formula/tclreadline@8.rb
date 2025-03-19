@@ -5,6 +5,13 @@ class TclreadlineAT8 < Formula
   sha256 "d14b1568b6db8cd51659e3cc476a1f45da2020434ebb90b4b0defbc424f05907"
   license "BSD-3-Clause"
 
+  bottle do
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 arm64_sonoma: "2a9f206bbfc9222829c5ebbfb289b8194a17aef11ba823c47b274007349391f5"
+    sha256 ventura:      "1ef0f9b40acd744a037eb16d75669fadc4860834bb330bbaf6689e03df4b1f22"
+    sha256 x86_64_linux: "fa4d7e17c0868f8744ac539ccfd651a893cf0383874928f402f5b2dc6a3d6266"
+  end
+
   keg_only :versioned_formula
 
   depends_on "autoconf" => :build
