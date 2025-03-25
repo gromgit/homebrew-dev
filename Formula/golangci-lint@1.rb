@@ -7,6 +7,13 @@ class GolangciLintAT1 < Formula
   license "GPL-3.0-only"
   head "https://github.com/golangci/golangci-lint.git", branch: "main"
 
+  bottle do
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma: "70d85d893e64b693b3ee4b461509e91d4e84211866a231eec1db6fea814e254e"
+    sha256 cellar: :any_skip_relocation, ventura:      "54b58fbe727fe576740d9128c1e379f1011c7fc6623e9bda6ffeb91cd15093b3"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "557a0cb1699e672915d80c18ce3af644628debfbf5d48a845b626097aed76133"
+  end
+
   keg_only :versioned_formula
 
   depends_on "go"
