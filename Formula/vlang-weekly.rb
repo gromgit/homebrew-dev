@@ -13,9 +13,9 @@ class VlangWeekly < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
-    sha256                               arm64_sonoma: "d83d2c4f692d71b5ee7cf9fe55736cf29db9385313e16a0309d5053ec3a728fb"
-    sha256 cellar: :any,                 ventura:      "3ca679486a3b52ce14b8aff0a32278dd9d18c959915c6596256dfe6ba8844cc9"
-    sha256 cellar: :any_skip_relocation, x86_64_linux: "5305f7f701e82ce72bd706ff1077ca1d143775b6553fe0cbdcd6e2bc9d2c2e28"
+    sha256                               arm64_sonoma: "5b6553d4f1ae459c8728023956e1b4ce4c0f474cde56816939808f83d9c43a94"
+    sha256 cellar: :any,                 ventura:      "53a1d9cb1f61ea01020b7ca227387a37807aa8531a28daac82baadc0e53293a1"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "b057ddb18ad7e2290223218b7c46005cfc52a1f211153cd514ff1e3c0769ed61"
   end
 
   depends_on "pkgconf" => :build
