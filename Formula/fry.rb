@@ -5,6 +5,13 @@ class Fry < Formula
   sha256 "5683308fc798b72aca9ddda62ae53e154c05162b9ade85adadd9360cf01afead"
   license "GPL-3.0-only"
 
+  bottle do
+    root_url "https://ghcr.io/v2/gromgit/dev"
+    sha256 cellar: :any,                 arm64_sonoma: "beb84139c7a666ee388b81844876364de4d03bd8e14d1e25a06c22517747297b"
+    sha256 cellar: :any,                 ventura:      "83bd753f48e984d854512f2f0ee7b45a0fd8ffd180fc841d7c9426a48782a414"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "f0872f4dd7c9486e5853356bed639786ed237fd88df5ed664e8eda9599fda36c"
+  end
+
   depends_on "curl"
   depends_on "libffi"
   depends_on "openssl@3"
