@@ -1,8 +1,8 @@
 class Abs < Formula
   desc "Shell scripting with a more modern syntax"
   homepage "https://www.abs-lang.org"
-  url "https://github.com/abs-lang/abs/archive/refs/tags/2.6.0.tar.gz"
-  sha256 "b057a62d48ddfa14c29d735e57cb1b2a65b14cca3d2a5a2408569eb3e2f039a8"
+  url "https://github.com/abs-lang/abs/archive/refs/tags/2.7.2.tar.gz"
+  sha256 "b8bf047a3bc422751c4e3d2243d4b3d607971a7947bcea6124eb6e23232db2e5"
   license "MIT"
   head "https://github.com/abs-lang/abs.git", branch: "master"
 
@@ -34,8 +34,8 @@ class Abs < Formula
       str = "Hello world!"
 
       echo(str[:5]) // Hello
-      echo(str.split("")[:5]) // ["H", "e", "l", "l", "o"]
+      echo(str.split()[:5]) // ["Hello", "world!"]
     EOS
-    assert_match "Hello\n[\"H\", \"e\", \"l\", \"l\", \"o\"]", shell_output("#{bin}/abs test.abs")
+    assert_match "Hello\n[\"Hello\", \"world!\"]", shell_output("#{bin}/abs test.abs")
   end
 end
