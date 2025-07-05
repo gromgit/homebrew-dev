@@ -1,8 +1,8 @@
 class Codon < Formula
   desc "High-performance, zero-overhead, extensible Python compiler using LLVM"
   homepage "https://docs.exaloop.io/codon"
-  url "https://github.com/exaloop/codon/archive/refs/tags/v0.16.0.tar.gz"
-  sha256 "9b02e270d1c1a684667a57291987c376aef9fc1730cf5b2c44a36f6dbc26bdcb"
+  url "https://github.com/exaloop/codon/archive/refs/tags/v0.19.0.tar.gz"
+  sha256 "47c060b7ffacca4342970547c6e3befa0d2dcfc822449e7ffcc0daaec9e83a2f"
   license "BUSL-1.1"
 
   bottle do
