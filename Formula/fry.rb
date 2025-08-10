@@ -1,8 +1,8 @@
 class Fry < Formula
   desc "FatScript interpreter"
   homepage "https://fatscript.org/en/"
-  url "https://gitlab.com/fatscript/fry/-/archive/v4.2.0/fry-v4.2.0.tar.bz2"
-  sha256 "35920264b939d8df7e57cf70cdd902b5ad0729c8363e2a6156847c3f9ebc06d3"
+  url "https://gitlab.com/fatscript/fry/-/archive/v4.2.1/fry-v4.2.1.tar.bz2"
+  sha256 "c3ab9bf23206d4b54ae0c8f1603d5da62c81398f1bf065643ed54a885d28d407"
   license "GPL-3.0-only"
 
   bottle do
