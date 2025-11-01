@@ -12,6 +12,7 @@ These formulae will disappear as and when they appear in core:
   * WIP
 * ~[Umka](https://github.com/vtereshkov/umka-lang): a statically typed embeddable scripting language~
   * core now tracks dev releases
+* [Uxn](https://100r.co/site/uxn.html): a tiny virtual machine and ecosystem
 
 These formulae track bleeding-edge releases of the corresponding core formulae:
 * ~[`odin-latest`](https://github.com/odin-lang/Odin): latest dev releases of `odin`~ core now tracks dev releases
