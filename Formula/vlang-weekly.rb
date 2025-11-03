@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/refs/tags/weekly.2025.44.tar.gz"
-  sha256 "0a01c2bb89f62810204c0280c481384fc1d49315bd2b92e5ba557121e8f47468"
+  url "https://github.com/vlang/v/archive/refs/tags/weekly.2025.45.tar.gz"
+  sha256 "24e7bd4cc37f21f7fc531c0a4fc0fa0a854e14415cb8a17624074e46343c8b56"
   license "MIT"
 
   livecheck do
