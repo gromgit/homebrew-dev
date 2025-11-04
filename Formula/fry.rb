@@ -7,10 +7,9 @@ class Fry < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
-    sha256 cellar: :any,                 arm64_sequoia: "df65973bb07a350c1e18d088d781f9ae9b127726d5cbab5f38a69cfe932f67c3"
-    sha256 cellar: :any,                 arm64_sonoma:  "1dbf07287309bb3264d1bca095bd5136f29742c1de79372a221ffcacf1c3d60c"
-    sha256 cellar: :any,                 ventura:       "5f4744fc80e268b6230677174296efeb56f8be2a124c592c99cfe3b9becfae77"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:  "d9514e38130c1215ea834af0a06225fcc0928519044fd1e1542f034c11356ef8"
+    sha256 cellar: :any,                 arm64_sequoia: "6b2cc9257e9266bf31566d7c56442bdfe2ead7b373e88f237a255510fa926573"
+    sha256 cellar: :any,                 arm64_sonoma:  "f1f6b80d0e488bbf14bdbe0ca363befa8ef48abafa5a95dedc9da6d8546ee157"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "138015d7c3a3a55511f43cfc93e33731abd93610a0f869b60797020ff99d083f"
   end
 
   depends_on "curl"
