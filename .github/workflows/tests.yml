@@ -26,6 +26,11 @@ jobs:
 
       - run: brew test-bot --only-cleanup-before
 
+      - name: Sanitize homebrew/core, just in case
+        run: |
+          brew update-reset "$(brew --repository homebrew/core)" || true
+          git -C "$(brew --repository homebrew/core)" clean -fd || true
+
       - run: brew test-bot --only-setup
 
       - run: brew test-bot --only-tap-syntax
