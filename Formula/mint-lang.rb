@@ -9,10 +9,10 @@ class MintLang < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
-    sha256 cellar: :any,                 arm64_tahoe:   "c12d107c4e6d2ac437ff33ab16d9b3769d339f1e76da943b692a073514248cc9"
-    sha256 cellar: :any,                 arm64_sequoia: "ac783482bd2004909de48a6f674dfb62b7f9505e99c00d49ecfeb0044b278583"
-    sha256 cellar: :any,                 arm64_sonoma:  "ff4b453b14bc61c48a4fbb69b3ccbfc047ab1708751de9d8198e0af00ae37918"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:  "21af3807080d7d029dbf55aa9e5146e2e4fceeedd355758e04a125bdaebf13f9"
+    sha256 cellar: :any,                 arm64_tahoe:   "939c3bd6fdef3ee11da287dc78d68e414ad00a4625a1f25a9f8b5c20757f3c41"
+    sha256 cellar: :any,                 arm64_sequoia: "eaa1173c04abda8a6815773c3a4338bd09beebbb9fece9130fd05ca7c7a6db72"
+    sha256 cellar: :any,                 arm64_sonoma:  "0860080ef3aeaf7b3cc6a6f3d8b5a826006bb705900a8b997b580cb076dcfc80"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "82fcd8601ccadf7736d34cea1f32fc68859a99eb54681c3ab9a955b132df6fbd"
   end
 
   depends_on "crystal" => :build
