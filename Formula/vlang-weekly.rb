@@ -1,8 +1,8 @@
 class VlangWeekly < Formula
   desc "V programming language"
   homepage "https://vlang.io"
-  url "https://github.com/vlang/v/archive/refs/tags/weekly.2026.04.tar.gz"
-  sha256 "ee1006bf05615dc9af64429bb90556bf8eceef0881feeb3e0415457813377de7"
+  url "https://github.com/vlang/v/archive/refs/tags/weekly.2026.05.tar.gz"
+  sha256 "52e11877b4662f5fc99edf3388a7fa44878c5092f12054d34d3b74f28c1eafa6"
   license "MIT"
 
   livecheck do
@@ -27,7 +27,13 @@ class VlangWeekly < Formula
 
   conflicts_with "vlang", because: "both install `v` binaries"
 
+  # upstream discussion, https://github.com/vlang/v/issues/16776
+  # macport patch commit, https://github.com/macports/macports-ports/commit/b3e0742a
+  patch :DATA
+
   def install
+    inreplace "vlib/builtin/builtin_d_gcboehm.c.v", "@PREFIX@", Formula["bdw-gc"].opt_prefix
+    # upstream-recommended packaging, https://github.com/vlang/v/blob/master/doc/packaging_v_for_distributions.md
     %w[up self].each do |cmd|
       (buildpath/"cmd/tools/v#{cmd}.v").delete
       (buildpath/"cmd/tools/v#{cmd}.v").write <<~EOS
@@ -57,3 +63,29 @@ class VlangWeekly < Formula
     assert_equal "Hello, World!", shell_output("./test").chomp
   end
 end
+
+__END__
+diff --git a/vlib/builtin/builtin_d_gcboehm.c.v b/vlib/builtin/builtin_d_gcboehm.c.v
+index 1e40935..f8cbdb3 100644
+--- a/vlib/builtin/builtin_d_gcboehm.c.v
++++ b/vlib/builtin/builtin_d_gcboehm.c.v
+@@ -45,8 +45,8 @@ $if dynamic_boehm ? {
+ } $else {
+ 	$if macos || linux {
+ 		#flag -DGC_BUILTIN_ATOMIC=1
+-		#flag -I @VEXEROOT/thirdparty/libgc/include
+-		$if (prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32 || rv64) {
++		#flag -I @PREFIX@/include
++		$if (!macos && prod && !tinyc && !debug) || !(amd64 || arm64 || i386 || arm32 || rv64) {
+ 			// TODO: replace the architecture check with a `!$exists("@VEXEROOT/thirdparty/tcc/lib/libgc.a")` comptime call
+ 			#flag @VEXEROOT/thirdparty/libgc/gc.o
+ 		} $else {
+@@ -62,6 +62,7 @@ $if dynamic_boehm ? {
+ 					}
+ 				} $else {
+ 					#flag @VEXEROOT/thirdparty/tcc/lib/libgc.a
++					#flag @PREFIX@/lib/libgc.a
+ 				}
+ 			}
+ 		}
+
