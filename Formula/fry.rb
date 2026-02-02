@@ -1,8 +1,10 @@
 class Fry < Formula
   desc "FatScript interpreter"
   homepage "https://fatscript.org/en/"
-  url "https://gitlab.com/fatscript/fry/-/archive/v4.3.0/fry-v4.3.0.tar.bz2"
-  sha256 "51bcc8dd344d7b166c0c21a40e762fa4aa82fa549350743c0f55a4f1f454a9fa"
+  # puil from git tag to get submodules
+  url "https://gitlab.com/fatscript/fry.git",
+    tag:      "v4.4.0",
+    revision: "8ca37cec36950e2d027e2afdb7567804960d8fbc"
   license "GPL-3.0-only"
 
   bottle do
@@ -15,9 +17,6 @@ class Fry < Formula
   depends_on "curl"
   depends_on "libffi"
   depends_on "openssl@3"
-  depends_on "readline"
-
-  patch :DATA
 
   def install
     ENV["CONT_IMG_VER"] = version
@@ -32,22 +31,3 @@ class Fry < Formula
     assert_match "current time in Beijing", shell_output("#{bin}/fry #{pkgshare}/sample/timezones.fat")
   end
 end
-
-__END__
-diff --git a/compile.sh b/compile.sh
-index b9ae10e..ae32fb9 100755
---- a/compile.sh
-+++ b/compile.sh
-@@ -11,9 +11,9 @@
- # Licensed under the GNU General Public License v3.0.
- # See LICENSE file in the project root for full license.
- 
--useNCurses=0   # set to 1 for ncurses, 0 for fatcurses
-+useNCurses=${useNCurses:-0}   # set to 1 for ncurses, 0 for fatcurses
- 
--if git version &>/dev/null
-+if [ -d .git ] && git version &>/dev/null
- then
-     FRY_VERSION="$(git describe --abbrev=6 --dirty --always --tags)"
- elif [ -z "$CONT_IMG_VER" ]
-
