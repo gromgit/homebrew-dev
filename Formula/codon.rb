@@ -1,8 +1,8 @@
 class Codon < Formula
   desc "High-performance, zero-overhead, extensible Python compiler using LLVM"
   homepage "https://docs.exaloop.io/codon"
-  url "https://github.com/exaloop/codon/archive/refs/tags/v0.16.0.tar.gz"
-  sha256 "9b02e270d1c1a684667a57291987c376aef9fc1730cf5b2c44a36f6dbc26bdcb"
+  url "https://github.com/exaloop/codon/archive/refs/tags/v0.19.0.tar.gz"
+  sha256 "47c060b7ffacca4342970547c6e3befa0d2dcfc822449e7ffcc0daaec9e83a2f"
   license "BUSL-1.1"
 
   bottle do
@@ -15,13 +15,22 @@ class Codon < Formula
   depends_on "gromgit/dev/codon-llvm" => :build
   depends_on "ninja" => :build
 
+  depends_on "cpp-peglib"
+  depends_on "gcc"
+  depends_on "libomp"
+
   def install
+    ENV["CODON_SYSTEM_LIBRARIES"] = Formula["gcc"].opt_lib/"gcc/current"
+    ENV.append "LDFLAGS", "-L#{Formula["libomp"].opt_lib} -lomp"
+    ENV.append "CPPFLAGS", "-I#{Formula["libomp"].opt_include}"
+
     llvm_cmakedir = Utils.safe_popen_read(Formula["gromgit/dev/codon-llvm"].bin/"llvm-config", "--cmakedir").strip
     args = %W[
       -DCMAKE_BUILD_TYPE=Release
       -DLLVM_DIR=#{llvm_cmakedir}
       -DCMAKE_C_COMPILER=clang
       -DCMAKE_CXX_COMPILER=clang++
+      -DHOMEBREW_ALLOW_FETCHCONTENT=ON
     ]
     system "cmake", "-S", ".", "-B", "build", "-G", "Ninja",
                     *args, *std_cmake_args
