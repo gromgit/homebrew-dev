@@ -3,8 +3,8 @@ class Fry < Formula
   homepage "https://fatscript.org/en/"
   # puil from git tag to get submodules
   url "https://gitlab.com/fatscript/fry.git",
-    tag:      "v4.4.0",
-    revision: "8ca37cec36950e2d027e2afdb7567804960d8fbc"
+    tag:      "v4.6.0",
+    revision: "3af9dad1c0cbbc37b9c546cf27f04f39ba9847de"
   license "GPL-3.0-only"
 
   bottle do
