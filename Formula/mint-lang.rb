@@ -1,8 +1,8 @@
 class MintLang < Formula
   desc "Programming language for single-page web applications"
   homepage "https://www.mint-lang.com/"
-  url "https://github.com/mint-lang/mint/archive/refs/tags/0.28.1.tar.gz"
-  sha256 "fe4bd9fb4aaf1cd7bac518bc7251ea65e68f27dd20d2db04124b8b9110179dd0"
+  url "https://github.com/mint-lang/mint/archive/refs/tags/0.29.0.tar.gz"
+  sha256 "ac74611b1cf4737ab00e255ccdf64c9c21fb88d1a76157f54b83126416ff3113"
   license "BSD-3-Clause"
 
   head "https://github.com/mint-lang/mint.git", branch: "master"
