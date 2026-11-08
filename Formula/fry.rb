@@ -3,8 +3,8 @@ class Fry < Formula
   homepage "https://fatscript.org/en/"
   # puil from git tag to get submodules
   url "https://gitlab.com/fatscript/fry.git",
-    tag:      "v4.4.0",
-    revision: "8ca37cec36950e2d027e2afdb7567804960d8fbc"
+    tag:      "v4.7.0",
+    revision: "d705bff8a938c2491e87e4d31a6d0e05d55d514f"
   license "GPL-3.0-only"
 
   bottle do
@@ -17,7 +17,7 @@ class Fry < Formula
 
   depends_on "curl"
   depends_on "libffi"
-  depends_on "openssl@3"
+  depends_on "openssl@4"
 
   def install
     ENV["CONT_IMG_VER"] = version
