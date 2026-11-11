@@ -8,9 +8,11 @@ class Tclreadline < Formula
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
-    sha256 arm64_sonoma: "480a7d38b8a032b72792784282c2ea50b7e751cbf62859e71a1ca186cab34a28"
-    sha256 ventura:      "91f4e8b44cdd12e1d516558af164925acdb638543a78ab9b672bf9f3503e2645"
-    sha256 x86_64_linux: "383d58505c4f775c84c366bf84ee79eab3d70b1c2ba6d4bb8069fca9bec83b67"
+    sha256 arm64_golden_gate: "7eaadcbcea5809a56d1846275e379062f56bc0f5218d7854d6d17f6aad9eced3"
+    sha256 arm64_tahoe:       "5b89b8d332fb1954cd23203ba31f347647c1945975e775d33d22934ecd860333"
+    sha256 arm64_sequoia:     "33aa1e28e45ca559514fc9e89ae3a029be47fbe98531798f84573d8ba2cad779"
+    sha256 arm64_linux:       "57e9788e3fb851aa620e850718e74b0c6b8a67b580c3d34b54d6e88d286c1c14"
+    sha256 x86_64_linux:      "9aba21de7b6e33e32654c5eeaa85c7a350fbb3f180cd38d31b6f4192936de00c"
   end
 
   depends_on "autoconf" => :build
