@@ -4,6 +4,7 @@ class Tclreadline < Formula
   url "https://github.com/flightaware/tclreadline/archive/refs/tags/v2.4.1.tar.gz"
   sha256 "d14b1568b6db8cd51659e3cc476a1f45da2020434ebb90b4b0defbc424f05907"
   license "BSD-3-Clause"
+  revision 1
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
