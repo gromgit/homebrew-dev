@@ -1,11 +1,10 @@
 class CodonLlvm < Formula
   desc "Custom LLVM required to build Codon"
   homepage "https://github.com/exaloop/llvm-project"
-  url "https://github.com/exaloop/llvm-project.git",
-      tag:      "codon-15.0.1",
-      revision: "7ea1b7bf4fca5bef3d14b46192257d195c9ba422"
-  version "2023.09.18"
+  url "https://github.com/exaloop/llvm-project/archive/refs/tags/codon-20.1.7.tar.gz"
+  sha256 "d0f613f3e63b1f1f1c8c75822bf2b83caed48e8973c35d13bf4148d343bc8645"
   license "BUSL-1.1"
+  version_scheme 1
 
   bottle do
     root_url "https://ghcr.io/v2/gromgit/dev"
@@ -16,13 +15,13 @@ class CodonLlvm < Formula
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
-  depends_on "python@3.13" => :build
+  depends_on "python@3.14" => :build
 
   def install
     args = %w[
       -DCMAKE_BUILD_TYPE=Release
       -DLLVM_INCLUDE_TESTS=OFF
-      -DLLVM_ENABLE_PROJECTS=clang
+      -DLLVM_ENABLE_PROJECTS=clang;openmp
       -DLLVM_ENABLE_RTTI=ON
       -DLLVM_ENABLE_ZLIB=OFF
       -DLLVM_ENABLE_TERMINFO=OFF
@@ -30,6 +29,18 @@ class CodonLlvm < Formula
       -DLLVM_ENABLE_LIBEDIT=OFF
       -DLLVM_ENABLE_ZSTD=OFF
       -DLLVM_TARGETS_TO_BUILD=all
+      -DLLVM_ENABLE_RUNTIMES=compiler-rt
+      -DCOMPILER_RT_BUILD_BUILTINS=ON
+      -DCOMPILER_RT_BUILD_SANITIZERS=OFF
+      -DCOMPILER_RT_BUILD_XRAY=OFF
+      -DCOMPILER_RT_BUILD_LIBFUZZER=OFF
+      -DCOMPILER_RT_BUILD_PROFILE=OFF
+      -DCOMPILER_RT_BUILD_MEMPROF=OFF
+      -DCOMPILER_RT_BUILD_CTX_PROFILE=OFF
+      -DCOMPILER_RT_BUILD_ORC=OFF
+      -DCOMPILER_RT_BUILD_CRT=OFF
+      -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON
+      -DCOMPILER_RT_INCLUDE_TESTS=OFF
     ]
     system "cmake", "-S", "llvm", "-B", "build", "-G", "Ninja",
                     *args, *std_cmake_args
